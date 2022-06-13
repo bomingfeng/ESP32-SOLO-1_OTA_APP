@@ -29,7 +29,6 @@ extern MessageBufferHandle_t ble_degC;  //换算2831 = 28.31
 extern MessageBufferHandle_t ble_humidity;
 extern MessageBufferHandle_t ble_Voltage;
 extern MessageBufferHandle_t ds18b20degC;   //换算2831 = 28.31
-extern MessageBufferHandle_t esp32degC; //换算2831 = 28.31
 extern rmt_channel_t example_rx_channel;
 extern rmt_channel_t example_tx_channel;
 extern MessageBufferHandle_t IRPS_temp;
@@ -61,7 +60,7 @@ void app_main()
     ble_humidity = xMessageBufferCreate(8);
     ble_Voltage = xMessageBufferCreate(8);
     ds18b20degC = xMessageBufferCreate(8);
-    esp32degC = xMessageBufferCreate(8);
+
     tcp_send_data  = xMessageBufferCreate(132);
     ir_rx_data  = xMessageBufferCreate(17);
     ir_tx_data =  xMessageBufferCreate(17);
@@ -80,10 +79,6 @@ void app_main()
 
 	MyWiFi_init();
     xTaskCreate(wifi_ap_sta, "wifi_ap_sta", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
-   
-    esp32_c3_soc_temp_init();
-    /* 用户配置任务的优先级数值越小，那么此任务的优先级越低，空闲任务的优先级是 0。configMAX_PRIORITIES */
-    //xTaskCreate(tempsensor_example,"temp",        3072, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
    
     xTaskCreate(ds18x20_test,      "ds18x20",3072, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 

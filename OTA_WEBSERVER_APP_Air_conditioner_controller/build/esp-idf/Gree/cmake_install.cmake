@@ -1,4 +1,4 @@
-# Install script for directory: C:/ESP/ESP32-SOLO-1/OTA/OTA_WEBSERVER_APP_Air_conditioner_controller/components/Gree
+# Install script for directory: C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA_WEBSERVER_APP_Air_conditioner_controller/components/Gree
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

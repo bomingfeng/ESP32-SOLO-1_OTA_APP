@@ -6,7 +6,6 @@ extern MessageBufferHandle_t ble_humidity;
 extern MessageBufferHandle_t ble_Voltage;
 extern MessageBufferHandle_t ble_degC;  //换算2831 = 28.31
 extern MessageBufferHandle_t ds18b20degC;   //换算2831 = 28.31
-extern MessageBufferHandle_t esp32degC; //换算2831 = 28.31
 extern MessageBufferHandle_t ir_tx_data;
 extern MessageBufferHandle_t ir_rx_data;
 extern RTC_DATA_ATTR uint8_t sleep_ir_data[13];
@@ -517,7 +516,6 @@ void tempps_task(void *arg)
         xMessageBufferReceive(ble_humidity,&humidity_ble,4,100/portTICK_PERIOD_MS);
         xMessageBufferReceive(ble_Voltage,&Voltage_ble,4,100/portTICK_PERIOD_MS);
         xMessageBufferReceive(ble_degC,&bleC,4,100/portTICK_PERIOD_MS);
-        xMessageBufferReceive(esp32degC,&esp32C,4,100/portTICK_PERIOD_MS);
         
         EventBits_t staBits = xEventGroupWaitBits(APP_event_group,APP_event_run_BIT | APP_event_30min_timer_BIT,\
                                                 pdFALSE,pdTRUE,100/portTICK_PERIOD_MS);

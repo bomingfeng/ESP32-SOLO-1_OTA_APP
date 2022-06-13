@@ -1931,7 +1931,7 @@ rule C_STATIC_LIBRARY_LINKER____idf_Gree_
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\ESP\.espressif\tools\cmake\3.20.3\bin\cmake.exe --regenerate-during-build -SC:\ESP\ESP32-SOLO-1\OTA\OTA_WEBSERVER_APP_Air_conditioner_controller -BC:\ESP\ESP32-SOLO-1\OTA\OTA_WEBSERVER_APP_Air_conditioner_controller\build
+  command = C:\ESP\.espressif\tools\cmake\3.20.3\bin\cmake.exe --regenerate-during-build -SC:\ESP\ESP32-SOLO-1\ESP32-SOLO-1_OTA_APP\OTA_WEBSERVER_APP_Air_conditioner_controller -BC:\ESP\ESP32-SOLO-1\ESP32-SOLO-1_OTA_APP\OTA_WEBSERVER_APP_Air_conditioner_controller\build
   description = Re-running CMake...
   generator = 1
 

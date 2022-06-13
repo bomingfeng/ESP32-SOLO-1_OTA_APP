@@ -1,4 +1,4 @@
-# Install script for directory: C:/ESP/ESP32-SOLO-1/OTA/OTA_WEBSERVER_APP_Air_conditioner_controller
+# Install script for directory: C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA_WEBSERVER_APP_Air_conditioner_controller
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/ESP/ESP32-SOLO-1/OTA/OTA_WEBSERVER_APP_Air_conditioner_controller/build/esp-idf/cmake_install.cmake")
+  include("C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA_WEBSERVER_APP_Air_conditioner_controller/build/esp-idf/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/ESP/ESP32-SOLO-1/OTA/OTA_WEBSERVER_APP_Air_conditioner_controller/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA_WEBSERVER_APP_Air_conditioner_controller/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

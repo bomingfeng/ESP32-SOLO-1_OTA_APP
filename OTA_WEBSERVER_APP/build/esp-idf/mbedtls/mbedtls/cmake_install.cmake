@@ -39,8 +39,8 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/ESP/ESP32-SOLO-1/OTA/OTA_WEBSERVER_APP/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
-  include("C:/ESP/ESP32-SOLO-1/OTA/OTA_WEBSERVER_APP/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
+  include("C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA_WEBSERVER_APP/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
+  include("C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA_WEBSERVER_APP/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
 
 endif()
 

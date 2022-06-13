@@ -1,4 +1,4 @@
-/* * Data converted from C:/ESP/ESP32-SOLO-1/OTA/OTA_WEBSERVER_APP/main/WebsiteFiles/index.html
+/* * Data converted from C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA_WEBSERVER_APP/main/WebsiteFiles/index.html
  * (null byte appended)
  */
 .data
