@@ -1,1 +1,0 @@
-# ESP32-SOLO-1_OTA_APP
