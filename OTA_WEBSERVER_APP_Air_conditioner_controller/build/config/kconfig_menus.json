@@ -3428,7 +3428,7 @@
             {
                 "children": [],
                 "depends_on": null,
-                "help": "Set the GPIO number used for receiving the RMT signal.",
+                "help": "Set the GPIO number used for receiving the DS18B20_SENSOR_GPIO signal.",
                 "id": "DS18B20_SENSOR_GPIO",
                 "name": "DS18B20_SENSOR_GPIO",
                 "range": null,

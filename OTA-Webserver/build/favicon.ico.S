@@ -1,4 +1,4 @@
-/* * Data converted from C:/ESP/ESP32-SOLO-1/OTA/OTA-Webserver/main/WebsiteFiles/favicon.ico
+/* * Data converted from C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA-Webserver/main/WebsiteFiles/favicon.ico
  * (null byte appended)
  */
 .data

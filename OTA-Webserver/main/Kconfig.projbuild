@@ -2,13 +2,13 @@ menu "OTA WiFi Configuration"
 
 config STATION_SSID
     string "Station SSID"
-	default "fengboming"
+	default "A412"
 	help
 		SSID (network name) for the example to connect to.
 
 config STATION_PASSPHRASE
     string "Station Passphrase"
-	default "bomingfeng1"
+	default "A41296956"
 	help
 		WiFi password (WPA or WPA2) for the example to use.
 

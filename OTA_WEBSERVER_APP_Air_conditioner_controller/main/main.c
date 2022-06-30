@@ -16,7 +16,7 @@ EventGroupHandle_t APP_event_group;
 /*
 断电保持位
 */
-RTC_DATA_ATTR uint32_t sleep_keep;
+RTC_DATA_ATTR uint32_t sleep_keep,test;
 RTC_DATA_ATTR uint8_t sleep_ir_data[13];
  
 uint8_t ip_addr1 = 0,ip_addr2 = 0,ip_addr3 = 0,ip_addr4 = 0;
@@ -37,7 +37,33 @@ void test_test(void * arg)
 {
     while(1)
     {
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+        if(test == 0xaa55aa55)
+        {
+            ESP_LOGI("test_test", "test == 0xaa55aa55: %x\n",test);
+        }
+        else
+        {
+            ESP_LOGI("test_test", "test !=! 0xaa55aa55: %x\n",test);
+            test = 0xaa55aa55;
+        }
+             uint64_t wakeup_pin_mask = esp_sleep_get_ext1_wakeup_status();
+            int pin = __builtin_ffsll(wakeup_pin_mask) - 1;
+            printf("Wake up from GPIO %d\n", pin);
+            const int ext_wakeup_pin_1 = 2;
+    		const uint64_t ext_wakeup_pin_1_mask = 1ULL << ext_wakeup_pin_1;
+			const int ext_wakeup_pin_2 = 4;
+            const uint64_t ext_wakeup_pin_2_mask = 1ULL << ext_wakeup_pin_2;
+            printf("Enabling EXT1 wakeup on pins GPIO%d, GPIO%d\n", ext_wakeup_pin_1, ext_wakeup_pin_2);
+            esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_1_mask | ext_wakeup_pin_2_mask, ESP_EXT1_WAKEUP_ALL_LOW);
+
+			// Isolate GPIO12 pin from external circuits. This is needed for modules
+			// which have an external pull-up resistor on GPIO12 (such as ESP32-WROVER)
+			// to minimize current consumption.
+			//rtc_gpio_isolate(GPIO_NUM_12);
+
+			printf("Entering deep sleep\n");
+			sleep_keep &= ~sleep_keep_WIFI_AP_OR_STA_BIT;
+			esp_deep_sleep_start();
     }
 } 
        
@@ -72,7 +98,7 @@ void app_main()
     printf("Create Task.....\r\n");
     OTA_Task_init();
     // Need this task to spin up, see why in task			
-	xTaskCreate(systemRebootTask, "rebootTask", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    xTaskCreate(systemRebootTask, "rebootTask", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 
     LED_Task_init();
     xTaskCreate(led_instructions, "led_instructions", 4596, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
@@ -80,7 +106,7 @@ void app_main()
 	MyWiFi_init();
     xTaskCreate(wifi_ap_sta, "wifi_ap_sta", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
    
-    xTaskCreate(ds18x20_test,      "ds18x20",3072, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    xTaskCreate(ds18x20_task,      "ds18x20",3072, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 
     ir_rx_task_init();
     xTaskCreate(example_ir_rx_task,"ir_rx",  3072, NULL, ESP_TASK_PRIO_MIN + 2, NULL);
@@ -91,7 +117,7 @@ void app_main()
     tempps_task_init();
     xTaskCreate(IRps_task,"IRps_task",  3072, NULL, ESP_TASK_PRIO_MIN + 2,NULL);
     xTaskCreate(tempps_task,"tempps",  3072, NULL, ESP_TASK_PRIO_MIN + 1,NULL);
-//    xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
+    //xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
 
 /*   释放BT mode模式，释放内存   */
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));

@@ -9,6 +9,11 @@ extern MessageBufferHandle_t ds18b20degC;   //换算2831 = 28.31
 extern MessageBufferHandle_t ir_tx_data;
 extern MessageBufferHandle_t ir_rx_data;
 extern RTC_DATA_ATTR uint8_t sleep_ir_data[13];
+
+extern int32_t BLe_battery;
+extern nvs_handle_t BLe_battery_handle;
+extern ledc_channel_config_t ledc_channel[2];
+
 MessageBufferHandle_t IRPS_temp;
 
 TimerHandle_t xTimers0,xTimers1,xTimers2,io_sleep_timers,time_sleep_timers;
@@ -163,7 +168,8 @@ void IRps_task(void *arg)
         {
             printf("ir_ps_data[%d] = 0x%02x;\r\n",i,ir_ps_data[i]);
         }
-       
+        ledc_set_duty(ledc_channel[0].speed_mode, ledc_channel[0].channel, 0);
+        ledc_update_duty(ledc_channel[0].speed_mode, ledc_channel[0].channel);
 #ifdef  Gree
         if((ir_ps_data[0] & 0xf0) == 0x50)
         {
@@ -171,7 +177,6 @@ void IRps_task(void *arg)
             {
                 sleep_ir_data[i] =  ir_ps_data[i];
             }
-            gpio_set_level(18, 0);
             if((ir_ps_data[3] & 0x08) == 0x08)    //判断是否开空调，开
             {
                 xTimerStop(io_sleep_timers,portMAX_DELAY);  //关掉待机休眠定时器
@@ -201,34 +206,34 @@ void IRps_task(void *arg)
                 switch (IR_temp)
                 {
                     case 0:
-                        IR_temp = 1750; //1600
+                        IR_temp = 2650; //1600
                         break;
                     case 1:
-                        IR_temp = 1840; //1700
+                        IR_temp = 2650; //1700
                         break;
                     case 2:
-                        IR_temp = 1930; //1800
+                        IR_temp = 2650; //1800
                         break;
                     case 3:
-                        IR_temp = 2020; //1900
+                        IR_temp = 2650; //1900
                         break;
                     case 4:
-                        IR_temp = 2110; //2000
+                        IR_temp = 2650; //2000
                         break;
                     case 5:
-                        IR_temp = 2200; //2100
+                        IR_temp = 2650; //2100
                         break;
                     case 6:
-                        IR_temp = 2290; //2200
+                        IR_temp = 2650; //2200
                         break;
                     case 7:
-                        IR_temp = 2380;
+                        IR_temp = 2650;
                         break;
                     case 8:
-                        IR_temp = 2470;
+                        IR_temp = 2650;
                         break;
                     case 9:
-                        IR_temp = 2560;
+                        IR_temp = 2650;
                         break;
                     case 10:
                         IR_temp = 2650;
@@ -298,7 +303,6 @@ void IRps_task(void *arg)
             {
                 sleep_ir_data[i] =  ir_ps_data[i];
             }
-            gpio_set_level(18, 0);
             if((ir_ps_data[9] & 0x04) == 0x04)    //判断是否开空调，开
             {
                 xTimerStop(io_sleep_timers,portMAX_DELAY);  //关掉待机休眠定时器
@@ -346,31 +350,31 @@ void IRps_task(void *arg)
                 IR_temp = ir_ps_data[1] & 0x1f;
                 switch (IR_temp)
                 {
-                    case 0x02:IR_temp = 1750;
+                    case 0x02:IR_temp = 2650;
                         break;
-                    case 0x12:IR_temp = 1840;
+                    case 0x12:IR_temp = 2650;
                         break;
-                    case 0x0a:IR_temp = 1930;
+                    case 0x0a:IR_temp = 2650;
                         break;
-                    case 0x1a:IR_temp = 2020;
+                    case 0x1a:IR_temp = 2650;
                         break;
-                    case 0x06:IR_temp = 2110;
+                    case 0x06:IR_temp = 2650;
                         break;
-                    case 0x16:IR_temp = 2200;
+                    case 0x16:IR_temp = 2650;
                         break;
-                    case 0x0e:IR_temp = 2290;
+                    case 0x0e:IR_temp = 2650;
                         break;
-                    case 0x1e:IR_temp = 2380;
+                    case 0x1e:IR_temp = 2650;
                         break;
-                    case 0x01:IR_temp = 2470;
+                    case 0x01:IR_temp = 2650;
                         break;
-                    case 0x11:IR_temp = 2560;
+                    case 0x11:IR_temp = 2650;
                         break;
                     case 0x09:IR_temp = 2650;
                         break;
-                    case 0x19:IR_temp = 2725;
+                    case 0x19:IR_temp = 2750;
                         break;
-                    case 0x05:IR_temp = 2780;
+                    case 0x05:IR_temp = 2800;
                         break;
                     case 0x15:IR_temp = 2900;
                         break;
@@ -489,12 +493,14 @@ void tempps_task(void *arg)
     uint8_t ir_ps_data[13];
     uint32_t bleC = 0;  //换算2831 = 28.31
     uint32_t humidity_ble = 0;
-    uint32_t Voltage_ble = 0;
+    uint32_t Voltage_ble;
     uint32_t ds18b20C;   //换算2831 = 28.31
-    uint32_t esp32C = 0; //换算2831 = 28.31
     uint32_t IR_temp = 2800;
     uint8_t send_flags = 0x55;
-    uint8_t i = 0;
+    uint8_t i = 0,VoltageL,VoltageH;
+    VoltageL = 0xaa;
+    VoltageH = 0xaa;
+    Voltage_ble = 2511;
     while(1)
     {
         xMessageBufferReceive(IRPS_temp,&IR_temp,4,100/portTICK_PERIOD_MS);
@@ -502,10 +508,7 @@ void tempps_task(void *arg)
         {
             bleC = IR_temp;
         }
-        if(esp32C == 0)
-        {
-            esp32C = IR_temp;
-        }
+
         if(ds18b20C == 0)
         {
             ds18b20C = IR_temp;
@@ -517,13 +520,54 @@ void tempps_task(void *arg)
         xMessageBufferReceive(ble_Voltage,&Voltage_ble,4,100/portTICK_PERIOD_MS);
         xMessageBufferReceive(ble_degC,&bleC,4,100/portTICK_PERIOD_MS);
         
+        if(((Voltage_ble != BLe_battery) && (Voltage_ble <= 2300) && (VoltageL == 0xaa)) || ((Voltage_ble != BLe_battery) && (Voltage_ble >= 2600) && (VoltageH == 0xaa)))
+        {
+            if(Voltage_ble <= 2300)
+            {
+                VoltageL = 0x55;
+            }
+            if(Voltage_ble >= 2800)
+            {
+                VoltageH = 0x55;
+            }
+            BLe_battery = Voltage_ble;
+            
+            // Open
+            printf("\n");
+            printf("Opening Non-Volatile Storage (NVS) handle... ");
+            esp_err_t err = nvs_open("storage", NVS_READWRITE, &BLe_battery_handle);
+            if (err != ESP_OK) 
+            {
+            printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+            }
+            else 
+            {
+                printf("Done\n");
+                // Write
+                printf("Updating restart counter in NVS ... ");
+                err = nvs_set_i32(BLe_battery_handle, "BLe_battery", BLe_battery);
+                printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+
+                // Commit written value.
+                // After setting any values, nvs_commit() must be called to ensure changes are written
+                // to flash storage. Implementations may write to storage at other times,
+                // but this is not guaranteed.
+                printf("Committing updates in NVS ... ");
+                err = nvs_commit(BLe_battery_handle);
+                printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+            }
+            // Close
+            nvs_close(BLe_battery_handle);
+        }
+
+
         EventBits_t staBits = xEventGroupWaitBits(APP_event_group,APP_event_run_BIT | APP_event_30min_timer_BIT,\
                                                 pdFALSE,pdTRUE,100/portTICK_PERIOD_MS);
         if((staBits & (APP_event_run_BIT | APP_event_30min_timer_BIT)) == (APP_event_run_BIT | APP_event_30min_timer_BIT))
         {
-            if ((sleep_keep & sleep_keep_Thermohygrometer_Low_battery_BIT) == sleep_keep_Thermohygrometer_Low_battery_BIT)
+            if(BLe_battery <= 2300)
             {
-                if((ds18b20C <= esp32C) && (ds18b20C >= (IR_temp + Sp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_SP_flags_BIT) == 0))
+                if((ds18b20C >= (IR_temp + Sp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_SP_flags_BIT) == 0))
                 {
                     //开
 #ifdef  Gree 
@@ -601,7 +645,7 @@ void tempps_task(void *arg)
                     send_flags = 0x55;
                     xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
                 }
-                if(((ds18b20C <= (IR_temp - Lp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LP_flags_BIT) == 0)) || ((esp32C <= (IR_temp - Lp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LP_flags_BIT) == 0)))
+                if(((ds18b20C <= (IR_temp - Lp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LP_flags_BIT) == 0)) )
                 {
                     //关
 #ifdef  Gree 
@@ -680,7 +724,7 @@ void tempps_task(void *arg)
                      send_flags = 0xa5;
                     xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
                 }
-                if(((ds18b20C <= (IR_temp - LLp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LLP_flags_BIT) == 0)) || ((esp32C <= (IR_temp - LLp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LLP_flags_BIT) == 0)))
+                if(((ds18b20C <= (IR_temp - LLp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LLP_flags_BIT) == 0)))
                 {
                     //全关
 #ifdef  Gree 
@@ -764,7 +808,7 @@ void tempps_task(void *arg)
             }
             else
             {
-                if((bleC <= esp32C) && (bleC >= (IR_temp + Sp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_SP_flags_BIT) == 0))
+                if((bleC >= (IR_temp + Sp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_SP_flags_BIT) == 0))
                 {
                     //开
 #ifdef  Gree 
@@ -845,7 +889,7 @@ void tempps_task(void *arg)
                     send_flags = 0x55;
                     xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
                 }
-                if(((esp32C <= (IR_temp - Lp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LP_flags_BIT) == 0)) || ((bleC <= (IR_temp - Lp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LP_flags_BIT) == 0)))
+                if(((bleC <= (IR_temp - Lp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LP_flags_BIT) == 0)))
                 {
                     //关
 #ifdef  Gree 
@@ -926,7 +970,7 @@ void tempps_task(void *arg)
                      send_flags = 0xa5;
                     xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
                 }
-                if(((esp32C <= (IR_temp - LLp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LLP_flags_BIT) == 0)) || ((bleC <= (IR_temp - LLp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LLP_flags_BIT) == 0)))
+                if(((bleC <= (IR_temp - LLp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_LLP_flags_BIT) == 0)))
                 {
                     //全关
 #ifdef  Gree 
@@ -1009,6 +1053,11 @@ void tempps_task(void *arg)
             }
             vTaskDelay(100/portTICK_PERIOD_MS);
         }
+        if((i >= 100) && ((staBits &APP_event_30min_timer_BIT) != 0) && (Voltage_ble == 2511))
+        {
+            Voltage_ble = 2000;
+        }
+        
         if(i >= 100)
         {
             i = 0;
@@ -1019,8 +1068,8 @@ void tempps_task(void *arg)
             计数已溢出。*/ 
             xRemainingTime = xTimerGetExpiryTime(time_sleep_timers) - xTaskGetTickCount();
             EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
-            printf("onoff(1=开，0=关):%d;55=开 & aa=全关 & a5=关:%x;time_off:%d;IR_temp:%dC;bleC::%dC;humidity_ble:%d%%;Voltage_ble:%dmV;esp32C:%dC;ds18b20C:%dC\r\n",   \
-            (uxBits & APP_event_run_BIT) ? 1:0,send_flags,(xRemainingTime/6000),IR_temp,bleC,humidity_ble,Voltage_ble,esp32C,ds18b20C);
+            printf("onoff(1=开，0=关):%d;55=开 & aa=全关 & a5=关:%x;time_off:%d;IR_temp:%dC;bleC::%dC;humidity_ble:%d%%;Voltage_ble:%dmV;ds18b20C:%dC\r\n",   \
+            (uxBits & APP_event_run_BIT) ? 1:0,send_flags,(xRemainingTime/6000),IR_temp,bleC,humidity_ble,Voltage_ble,ds18b20C);
 
             tcprx_buffer = "Automatic control status 55=on & aa=Quanguan & a5=shut hex";
             uxBits = xEventGroupWaitBits(APP_event_group, \
@@ -1093,18 +1142,6 @@ void tempps_task(void *arg)
 				xMessageBufferSend(tcp_send_data,tcprx_buffer,strlen(tcprx_buffer), 1000 / portTICK_PERIOD_MS);
 			}
             tcp_client_send(Voltage_ble);
-
-            tcprx_buffer = "esp32C temperature /100 C hex";
-            uxBits = xEventGroupWaitBits(APP_event_group, \
-										APP_event_tcp_client_send_BIT, \
-										pdTRUE,                               \
-										pdFALSE,                               \
-										1000 / portTICK_PERIOD_MS);
-			if((uxBits & APP_event_tcp_client_send_BIT) != 0)
-			{
-				xMessageBufferSend(tcp_send_data,tcprx_buffer,strlen(tcprx_buffer), 1000 / portTICK_PERIOD_MS);
-			}
-            tcp_client_send(esp32C);
 
             tcprx_buffer = "ds18b20C temperature /100 C hex";
             uxBits = xEventGroupWaitBits(APP_event_group, \

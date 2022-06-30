@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/ESP/ESP32-SOLO-1/OTA/OTA-Webserver/build/esp-idf/esp_system/port/cmake_install.cmake")
+  include("C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA-Webserver/build/esp-idf/esp_system/port/cmake_install.cmake")
 
 endif()
 

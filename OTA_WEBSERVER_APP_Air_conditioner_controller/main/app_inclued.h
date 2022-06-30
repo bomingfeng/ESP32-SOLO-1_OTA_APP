@@ -36,6 +36,10 @@
 #include "tcp_client.h"
 #include "ds18b20_task.h"
 #include "ir_rx_task.h"
+#include "math.h"
+#include "driver/timer.h"
+#include "driver/ledc.h"
+
 
 #define Gree    
 //#define Auxgroup 
@@ -84,6 +88,8 @@ extern EventGroupHandle_t APP_event_group;
 #define APP_event_SP_flags_BIT BIT11 // =1 
 #define APP_event_LP_flags_BIT BIT12 // =1
 #define APP_event_LLP_flags_BIT BIT13 // =1
+
+#define APP_event_IR_LED_flags_BIT BIT14 // =1 接收到IR数据正确
 
 extern RTC_DATA_ATTR uint32_t sleep_keep;
 #define sleep_keep_WIFI_AP_OR_STA_BIT BIT0

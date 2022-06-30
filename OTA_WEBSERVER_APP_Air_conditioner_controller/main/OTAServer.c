@@ -94,7 +94,7 @@ void systemRebootTask(void * parameter)
 			keycon++;
 			if(keycon >= 10)
 			{
-				gpio_set_level(18, 1);
+				xEventGroupSetBits(APP_event_group,APP_event_IR_LED_flags_BIT);
 				keycon = 0;
 				partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP,    \
 				ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
@@ -114,13 +114,10 @@ void systemRebootTask(void * parameter)
 
 		if((staBits & APP_event_IO_wakeup_sleep_BIT) != 0)
 		{
-
-			const int ext_wakeup_pin_1 = 2;
-			const uint64_t ext_wakeup_pin_1_mask = 1ULL << ext_wakeup_pin_1;
-			const int ext_wakeup_pin_2 = 4;
-			const uint64_t ext_wakeup_pin_2_mask = 1ULL << ext_wakeup_pin_2;
-			printf("Enabling EXT1 wakeup on pins GPIO%d, GPIO%d\n", ext_wakeup_pin_1, ext_wakeup_pin_2);
-			esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_1_mask | ext_wakeup_pin_2_mask, ESP_EXT1_WAKEUP_ANY_HIGH);
+    		const int ext_wakeup_pin_1 = 2;
+    		const uint64_t ext_wakeup_pin_1_mask = 1ULL << ext_wakeup_pin_1;
+			printf("Enabling EXT1 wakeup on pins GPIO%d\n", ext_wakeup_pin_1);
+            esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_1_mask, ESP_EXT1_WAKEUP_ALL_LOW);
 
 			// Isolate GPIO12 pin from external circuits. This is needed for modules
 			// which have an external pull-up resistor on GPIO12 (such as ESP32-WROVER)
@@ -128,14 +125,13 @@ void systemRebootTask(void * parameter)
 			rtc_gpio_isolate(GPIO_NUM_12);
 
 			printf("Entering deep sleep\n");
-
-			printf("Enabling GPIO wakeup on pins GPIO%d\n", 1);
 			sleep_keep &= ~sleep_keep_WIFI_AP_OR_STA_BIT;
 			esp_deep_sleep_start();
 		}
-		
 	}
+		
 }
+
 
 
 /* Send index.html Page */

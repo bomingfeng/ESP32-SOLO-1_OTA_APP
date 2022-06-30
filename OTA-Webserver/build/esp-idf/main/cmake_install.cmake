@@ -1,4 +1,4 @@
-# Install script for directory: C:/ESP/ESP32-SOLO-1/OTA/OTA-Webserver/main
+# Install script for directory: C:/ESP/ESP32-SOLO-1/ESP32-SOLO-1_OTA_APP/OTA-Webserver/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -21,6 +21,10 @@
     "freertosconfig.h": "c",
     "message_buffer.h": "c",
     "event_groups.h": "c",
-    "app_inclued.h": "c"
+    "app_inclued.h": "c",
+    "ds18b20_task.h": "c",
+    "random": "c",
+    "led_task.h": "c",
+    "bitset": "c"
   }
 }

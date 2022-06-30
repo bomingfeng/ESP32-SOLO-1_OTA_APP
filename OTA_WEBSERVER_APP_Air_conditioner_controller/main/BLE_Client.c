@@ -17,6 +17,9 @@ uint32_t humidity_ble = 0;
 uint32_t Voltage_ble = 0;
 uint8_t con = 0;
 
+int32_t BLe_battery;
+nvs_handle_t BLe_battery_handle;
+
 extern char * tcprx_buffer;
 extern MessageBufferHandle_t tcp_send_data;
 // LSB <--------------------------------------------------------------------------------> MSB 
@@ -382,7 +385,7 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                                             4,portMAX_DELAY);
                     xMessageBufferSend( ble_Voltage,   \
                                             &Voltage_ble,  \
-                                            4,portMAX_DELAY);                                                
+                                            4,portMAX_DELAY);                                                                  
                     degC_ble = 0;
                     humidity_ble = 0;
                     Voltage_ble = 0;
