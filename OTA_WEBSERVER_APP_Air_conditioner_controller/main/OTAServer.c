@@ -88,7 +88,7 @@ void systemRebootTask(void * parameter)
 			vTaskDelay(3000 / portTICK_PERIOD_MS);
 			esp_deep_sleep(1000000LL * 5);	//2s
 		}
-
+/*
 		if(gpio_get_level(CONFIG_INPUT_GPIO) == 0x00)
 		{
 			keycon++;
@@ -111,7 +111,7 @@ void systemRebootTask(void * parameter)
 		{
 			keycon = 0;
 		}
-
+*/
 		if((staBits & APP_event_IO_wakeup_sleep_BIT) != 0)
 		{
     		const int ext_wakeup_pin_1 = 2;

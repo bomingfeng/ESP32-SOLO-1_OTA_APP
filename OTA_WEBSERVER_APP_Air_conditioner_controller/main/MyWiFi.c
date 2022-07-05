@@ -28,7 +28,7 @@ extern uint8_t ip_addr1,ip_addr2,ip_addr3,ip_addr4;
 void MyWiFi_init(void)
 {
 	xEventGroupClearBits(APP_event_group,APP_event_WIFI_AP_CONNECTED_BIT | APP_event_WIFI_STA_CONNECTED_BIT | APP_event_tcp_client_send_BIT);
-	if((sleep_keep & sleep_keep_WIFI_AP_OR_STA_BIT) == sleep_keep_WIFI_AP_OR_STA_BIT)
+/*	if((sleep_keep & sleep_keep_WIFI_AP_OR_STA_BIT) == sleep_keep_WIFI_AP_OR_STA_BIT)
 	{
 		//sleep_keep |= sleep_keep_WIFI_AP_OR_STA_BIT;
 		init_wifi_softap(&OTA_server);
@@ -41,7 +41,9 @@ void MyWiFi_init(void)
 		init_wifi_station(&OTA_server);
 		printf("Welcome to esp32-c3 STA.\r\n");
 		tcprx_buffer = "Welcome to esp32-c3 STA.";
-	}
+	}*/
+	init_wifi_station(&OTA_server);
+	printf("Welcome to esp32-c3 STA.\r\n");
 }
 
 static void ip_event_handler(void* arg, esp_event_base_t event_base,

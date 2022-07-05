@@ -25,6 +25,11 @@
     "ds18b20_task.h": "c",
     "random": "c",
     "led_task.h": "c",
-    "bitset": "c"
+    "bitset": "c",
+    "ir_rx_task.h": "c",
+    "multi_button.h": "c",
+    "cpu_timer.h": "c",
+    "gpio.h": "c",
+    "multibutton_poll_task.h": "c"
   }
 }

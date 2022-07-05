@@ -1,4 +1,5 @@
 #include "ds18b20_task.h"
+#include "cpu_timer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,12 +50,13 @@ typedef struct {
     bool auto_reload;
 } example_timer_info_t;
  
+ /*
 //set 80m hz /20 ,4m hz tick 
 void ds18b20_timer_init(void)
 {
     int group = 0;
     int timer = 1;
-    /* Select and initialize basic parameters of the timer */
+    // Select and initialize basic parameters of the timer 
     timer_config_t config = {
         .divider = TIMER_DIVIDER,
         .counter_dir = TIMER_COUNT_UP,
@@ -64,8 +66,8 @@ void ds18b20_timer_init(void)
     }; // default clock source is APB
     timer_init(group, timer, &config);
  
-    /* Timer's counter will initially start from value below.
-       Also, if auto_reload is set, this value will be automatically reload on alarm */
+    // Timer's counter will initially start from value below.
+       Also, if auto_reload is set, this value will be automatically reload on alarm 
     timer_set_counter_value(group, timer, 0);
  
     timer_start(group, timer);
@@ -82,7 +84,8 @@ void sdk_os_delay_us(uint16_t us) {
         timer_get_counter_value(0,1,&timer_counter_value);
     } while (timer_counter_value < timer_counter_update);
 }
- 
+*/
+
 // Waits up to `max_wait` microseconds for the specified pin to go high.
 // Returns true if successful, false if the bus never comes high (likely
 // shorted).
@@ -90,12 +93,12 @@ static inline bool _onewire_wait_for_bus(int pin, int max_wait) {
     bool state;
     for (int i = 0; i < ((max_wait + 4) / 5); i++) {
         if (gpio_get_level(pin)) break;
-        sdk_os_delay_us(5);
+        cpu_timer0_delay_us(5);
     }
     state = gpio_get_level(pin);
     // Wait an extra 1us to make sure the devices have an adequate recovery
     // time before we drive things low again.
-    sdk_os_delay_us(1);
+    cpu_timer0_delay_us(1);
     return state;
 }
  
@@ -107,18 +110,17 @@ static inline bool _onewire_wait_for_bus(int pin, int max_wait) {
 //
 bool onewire_reset(int pin) {
     bool r;
- 
-    gpio_set_direction(pin,GPIO_MODE_INPUT_OUTPUT_OD);
+    gpio_set_direction(pin,GPIO_MODE_INPUT_OUTPUT);
     gpio_set_level(pin, 1);
     // wait until the wire is high... just in case
     if (!_onewire_wait_for_bus(pin, 250)) return false;
  
     gpio_set_level(pin, 0);
-    sdk_os_delay_us(480);
+    cpu_timer0_delay_us(480);
  
     taskENTER_CRITICAL(&mux);
     gpio_set_level(pin, 1); // allow it to float
-    sdk_os_delay_us(70);
+    cpu_timer0_delay_us(70);
     r = !gpio_get_level(pin);
     taskEXIT_CRITICAL(&mux);
  
@@ -133,18 +135,18 @@ static bool _onewire_write_bit(int pin, bool v) {
     if (v) {
         taskENTER_CRITICAL(&mux);
         gpio_set_level(pin, 0);  // drive output low
-        sdk_os_delay_us(10);
+        cpu_timer0_delay_us(10);
         gpio_set_level(pin, 1);  // allow output high
         taskEXIT_CRITICAL(&mux);
-        sdk_os_delay_us(55);
+        cpu_timer0_delay_us(55);
     } else {
         taskENTER_CRITICAL(&mux);
         gpio_set_level(pin, 0);  // drive output low
-        sdk_os_delay_us(65);
+        cpu_timer0_delay_us(65);
         gpio_set_level(pin, 1); // allow output high
         taskEXIT_CRITICAL(&mux);
     }
-    sdk_os_delay_us(1);
+    cpu_timer0_delay_us(1);
  
     return true;
 }
@@ -156,12 +158,12 @@ static int _onewire_read_bit(int pin) {
         return -1;
     taskENTER_CRITICAL(&mux);
     gpio_set_level(pin, 0);
-    sdk_os_delay_us(2);
+    cpu_timer0_delay_us(2);
     gpio_set_level(pin, 1);  // let pin float, pull up will raise
-    sdk_os_delay_us(11);
+    cpu_timer0_delay_us(11);
     r = gpio_get_level(pin);  // Must sample within 15us of start
     taskEXIT_CRITICAL(&mux);
-    sdk_os_delay_us(48);
+    cpu_timer0_delay_us(48);
  
     return r;
 }
@@ -894,7 +896,7 @@ bool ds18b20_read_temp_multi(int pin, ds18b20_addr_t *addr_list, int addr_count,
 void ds18x20_task(void *arg)
 {
     int degC = 0;
-    ds18b20_timer_init();
+    cpu_timer0_init();
     printf("This is from ds18b20\r\n");
     float t,temp_c = 0.0;
 

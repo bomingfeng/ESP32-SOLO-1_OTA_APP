@@ -6,6 +6,8 @@
 #include "ir_tx_Task.h"
 #include "temperature_control_task.h"
 #include "BLE_Client.h"
+#include "cpu_timer.h"
+#include "MultiButton/MultiButton_poll_Task.h"
 
 EventGroupHandle_t APP_event_group;
 
@@ -32,6 +34,9 @@ extern MessageBufferHandle_t ds18b20degC;   //换算2831 = 28.31
 extern rmt_channel_t example_rx_channel;
 extern rmt_channel_t example_tx_channel;
 extern MessageBufferHandle_t IRPS_temp;
+
+extern int32_t BLe_battery;
+extern nvs_handle_t BLe_battery_handle;
 
 void test_test(void * arg)
 {
@@ -104,7 +109,7 @@ void app_main()
     xTaskCreate(led_instructions, "led_instructions", 4596, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 
 	MyWiFi_init();
-    xTaskCreate(wifi_ap_sta, "wifi_ap_sta", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    //xTaskCreate(wifi_ap_sta, "wifi_ap_sta", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
    
     xTaskCreate(ds18x20_task,      "ds18x20",3072, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 
@@ -118,6 +123,7 @@ void app_main()
     xTaskCreate(IRps_task,"IRps_task",  3072, NULL, ESP_TASK_PRIO_MIN + 2,NULL);
     xTaskCreate(tempps_task,"tempps",  3072, NULL, ESP_TASK_PRIO_MIN + 1,NULL);
     //xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
+
 
 /*   释放BT mode模式，释放内存   */
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
@@ -134,7 +140,43 @@ void app_main()
             xMessageBufferSend(ir_tx_data,sleep_ir_data,13,portMAX_DELAY);//
         }
     }
-    
+
+
+        // Open
+    printf("\n");
+    printf("Opening Non-Volatile Storage (NVS) handle... ");
+    esp_err_t err = nvs_open("storage", NVS_READWRITE, &BLe_battery_handle);
+    if (err != ESP_OK) 
+    {
+       printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+    }
+    else 
+    {
+        printf("Done\n");
+
+        // Read
+        printf("Reading restart counter from NVS ... \n");
+        
+        err = nvs_get_i32(BLe_battery_handle, "BLe_battery", &BLe_battery);
+        switch (err) 
+        {
+            case ESP_OK:
+                printf("Done\n");
+                printf("Restart counter = %d\n", BLe_battery);
+                break;
+            case ESP_ERR_NVS_NOT_FOUND:
+                printf("The value is not initialized yet!\n");
+                break;
+            default :
+                printf("Error (%s) reading!\n", esp_err_to_name(err));
+        }
+        // Close
+        nvs_close(BLe_battery_handle);
+    }
+
+    xTaskCreate(MultiButton_poll_Task, "Button_poll_Task", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+
+    //xTaskCreate(ble_init, "ble_init", 6144, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
     staBits = xEventGroupWaitBits(APP_event_group,APP_event_run_BIT | APP_event_30min_timer_BIT,\
                                                 pdFALSE,pdTRUE,portMAX_DELAY);
     if((staBits & (APP_event_run_BIT | APP_event_30min_timer_BIT)) == (APP_event_run_BIT | APP_event_30min_timer_BIT))
