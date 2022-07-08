@@ -227,19 +227,19 @@ void IRps_task(void *arg)
                         IR_temp = 2650; //2200
                         break;
                     case 7:
-                        IR_temp = 2650;
+                        IR_temp = 2650;//23
                         break;
                     case 8:
-                        IR_temp = 2650;
+                        IR_temp = 2650;//24
                         break;
                     case 9:
-                        IR_temp = 2650;
+                        IR_temp = 2650;//25
                         break;
                     case 10:
-                        IR_temp = 2650;
+                        IR_temp = 2650;//26
                         break;
                     case 11:
-                        IR_temp = 2700;
+                        IR_temp = 2700;//2700
                         break;
                     case 12:
                         IR_temp = 2800;
@@ -251,10 +251,10 @@ void IRps_task(void *arg)
                         IR_temp = 3000;
                         break;
                     case 15:
-                        IR_temp = 2800;
+                        IR_temp = 2700;
                         break;    
                     default:	
-                        IR_temp = 2800; 
+                        IR_temp = 2700; 
                         break;
                 }
                 xMessageBufferSend(IRPS_temp,&IR_temp,4,portMAX_DELAY);
@@ -273,11 +273,45 @@ void IRps_task(void *arg)
                 ir_ps_data[11] = 0x00;
                 ir_ps_data[12] = 0x00;
                 16开机，开灯,风速强劲。左右上下扫风开
+
+                ir_ps_data[0] = 0x50;
+                ir_ps_data[1] = 0x30;
+                ir_ps_data[2] = 0x08;
+                ir_ps_data[3] = 0x79;
+                ir_ps_data[4] = 0xc0;
+                ir_ps_data[5] = 0x00;
+                ir_ps_data[6] = 0x00;
+                ir_ps_data[7] = 0x11;
+                ir_ps_data[8] = 0x00;
+                ir_ps_data[9] = 0x00;
+                ir_ps_data[10] = 0x00;
+                ir_ps_data[11] = 0x00;
+                ir_ps_data[12] = 0x00;
+                24开机，开灯,风速强劲。左右上下扫风开
+                ir ok
+                ir_ps_data[0] = 0x50;
+                ir_ps_data[1] = 0x30;
+                ir_ps_data[2] = 0x07;
+                ir_ps_data[3] = 0x79;
+                ir_ps_data[4] = 0xb0;
+                ir_ps_data[5] = 0x00;
+                ir_ps_data[6] = 0x00;
+                ir_ps_data[7] = 0x11;
+                ir_ps_data[8] = 0x00;
+                ir_ps_data[9] = 0x00;
+                ir_ps_data[10] = 0x00;
+                ir_ps_data[11] = 0x00;
+                ir_ps_data[12] = 0x00;
+                23开机，开灯,风速强劲。左右上下扫风开
                 */
-                ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x30;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x79;
-                ir_ps_data[4] = 0x40;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
-                vTaskDelay(500/portTICK_PERIOD_MS);
-                xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
+                if((((ir_ps_data[2] & 0x0f) >= 6) && ((uxBits & APP_event_ds18b20_CONNECTED_flags_BIT) == APP_event_ds18b20_CONNECTED_flags_BIT)) || \
+                 (((ir_ps_data[2] & 0x0f) >= 6) && ((uxBits & APP_event_BLE_CONNECTED_flags_BIT) == APP_event_BLE_CONNECTED_flags_BIT)))
+                {
+                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x30;ir_ps_data[2] = 0x07;ir_ps_data[3] = 0x79;
+                    ir_ps_data[4] = 0xb0;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
+                    vTaskDelay(600/portTICK_PERIOD_MS);
+                    xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
+                }
             }
             else    //关
             {          
@@ -583,9 +617,12 @@ void tempps_task(void *arg)
 
         EventBits_t staBits = xEventGroupWaitBits(APP_event_group,APP_event_run_BIT | APP_event_30min_timer_BIT,\
                                                 pdFALSE,pdTRUE,100/portTICK_PERIOD_MS);
-        if((staBits & (APP_event_run_BIT | APP_event_30min_timer_BIT)) == (APP_event_run_BIT | APP_event_30min_timer_BIT))
+        if(((staBits & (APP_event_run_BIT | APP_event_30min_timer_BIT | APP_event_BLE_CONNECTED_flags_BIT)) == \
+                      (APP_event_run_BIT | APP_event_30min_timer_BIT | APP_event_BLE_CONNECTED_flags_BIT)) || \
+                      ((staBits & (APP_event_run_BIT | APP_event_30min_timer_BIT | APP_event_ds18b20_CONNECTED_flags_BIT)) == \
+                      (APP_event_run_BIT | APP_event_30min_timer_BIT | APP_event_ds18b20_CONNECTED_flags_BIT)))
         {
-            if(BLe_battery <= BLe_battery_low)
+            if(BLe_battery <= (BLe_battery_low - 130))
             {
                 if((ds18b20C >= (IR_temp + Sp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_SP_flags_BIT) == 0))
                 {
@@ -665,9 +702,39 @@ void tempps_task(void *arg)
                         ir_ps_data[11] = 0x00;
                         ir_ps_data[12] = 0x00;
                         16开机，关灯,风速最大。左右上下扫风开
+
+                        ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x20;
+                        ir_ps_data[2] = 0x08;
+                        ir_ps_data[3] = 0x79;
+                        ir_ps_data[4] = 0xc0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x00;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x00;
+                        ir_ps_data[12] = 0x00;
+                        24开机，关灯,风速最大。左右上下扫风开
+
+                        ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x00;
+                        ir_ps_data[2] = 0x07;
+                        ir_ps_data[3] = 0x79;
+                        ir_ps_data[4] = 0xb0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x00;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x00;
+                        ir_ps_data[12] = 0x00;
+                        23开机，关灯,风速最大。左右上下扫风开
                     */
-                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x00;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x79;
-                    ir_ps_data[4] = 0x40;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
+                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x00;ir_ps_data[2] = 0x07;ir_ps_data[3] = 0x79;
+                    ir_ps_data[4] = 0xb0;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
 #endif                   
 
 #ifdef  Auxgroup     
@@ -951,9 +1018,39 @@ void tempps_task(void *arg)
                         ir_ps_data[11] = 0x00;
                         ir_ps_data[12] = 0x00;
                         16开机，关灯,风速最大。左右上下扫风开
+
+                        ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x20;
+                        ir_ps_data[2] = 0x08;
+                        ir_ps_data[3] = 0x79;
+                        ir_ps_data[4] = 0xc0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x00;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x00;
+                        ir_ps_data[12] = 0x00;
+                        24开机，关灯,风速最大。左右上下扫风开
+
+                        ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x00;
+                        ir_ps_data[2] = 0x07;
+                        ir_ps_data[3] = 0x79;
+                        ir_ps_data[4] = 0xb0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x00;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x00;
+                        ir_ps_data[12] = 0x00;
+                        23开机，关灯,风速最大。左右上下扫风开
                     */
-                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x00;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x79;
-                    ir_ps_data[4] = 0x40;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
+                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x00;ir_ps_data[2] = 0x07;ir_ps_data[3] = 0x79;
+                    ir_ps_data[4] = 0xb0;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
 #endif  
 
 #ifdef  Auxgroup     
@@ -1180,7 +1277,7 @@ void tempps_task(void *arg)
         }
         if((i >= 100) && ((staBits &APP_event_30min_timer_BIT) != 0) && (Voltage_ble == (BLe_battery_low + 1)))
         {
-            Voltage_ble = 2000;
+            Voltage_ble = BLe_battery_low;
         }
         
         if(i >= 100)

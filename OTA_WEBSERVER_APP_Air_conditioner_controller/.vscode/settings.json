@@ -30,6 +30,7 @@
     "multi_button.h": "c",
     "cpu_timer.h": "c",
     "gpio.h": "c",
-    "multibutton_poll_task.h": "c"
+    "multibutton_poll_task.h": "c",
+    "chrono": "c"
   }
 }

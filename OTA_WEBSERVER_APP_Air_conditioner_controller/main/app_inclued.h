@@ -68,11 +68,11 @@
 #define Sp 18 //温度上、下限
 #define Lp 15
 #define LLp 25
-#define load_time 30 //多久控制空调
+#define load_time 10 //多久控制空调
 #define sleep_time 5  //休眠时间min
 #define time_off 500 //默认定时关空调时间MIN
-#define BLe_battery_low 2100
-#define BLe_battery_High 2200
+#define BLe_battery_low 2210 //2110
+#define BLe_battery_High 2320
 
 extern EventGroupHandle_t APP_event_group;
 #define APP_event_REBOOT_BIT BIT0   // =1 重起
@@ -92,6 +92,8 @@ extern EventGroupHandle_t APP_event_group;
 #define APP_event_LLP_flags_BIT BIT13 // =1
 
 #define APP_event_IR_LED_flags_BIT BIT14 // =1 接收到IR数据正确
+#define APP_event_BLE_CONNECTED_flags_BIT BIT15 // =1 接收到ble数据正确
+#define APP_event_ds18b20_CONNECTED_flags_BIT BIT16 // =1 接收到ds18b20数据正确
 
 extern RTC_DATA_ATTR uint32_t sleep_keep;
 #define sleep_keep_WIFI_AP_OR_STA_BIT BIT0

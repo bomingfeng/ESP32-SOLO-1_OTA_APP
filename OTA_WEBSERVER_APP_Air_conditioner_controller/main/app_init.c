@@ -82,6 +82,13 @@ void app_init(void)
     gpio_set_direction(13, GPIO_MODE_OUTPUT);
     gpio_set_level(13,0);
 
+    WRITE_PERI_REG(GPIO_FUNC12_OUT_SEL_CFG_REG, READ_PERI_REG(GPIO_FUNC12_OUT_SEL_CFG_REG) | GPIO_FUNC12_OUT_SEL_M);
+    gpio_reset_pin(12);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(12, GPIO_MODE_OUTPUT);
+    gpio_set_level(12,0);
+    gpio_set_pull_mode(12,GPIO_PULLUP_ONLY);
+
     //Initialize NVS
 	esp_err_t err = nvs_flash_init();
 	if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {

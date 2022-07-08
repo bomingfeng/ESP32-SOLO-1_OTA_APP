@@ -350,11 +350,6 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                 Voltage_ble += (p_data->notify.value[4] << 8) + p_data->notify.value[3];
                 if(con >= 18)
                 {
-                    if(ble_batty_low == 1)
-                    {
-                        sleep_keep &= ~sleep_keep_Thermohygrometer_Low_battery_BIT;
-                        ble_batty_low = 0;
-                    }
                     degC_ble = degC_ble/18;
                     humidity_ble = humidity_ble/18;
                     Voltage_ble = Voltage_ble/18;
@@ -362,14 +357,7 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                     printf("temperature:%ddecC,humidity:%d%%,Voltage:%dmV,value_len:%d\r\n",    \
                     degC_ble,humidity_ble,Voltage_ble,p_data->notify.value_len);
                     //printf("----------------------------------------------------\r\n");
-                    if(Voltage_ble <= 2200)
-                    {
-                        sleep_keep |= sleep_keep_Thermohygrometer_Low_battery_BIT;
-                    }
-                    if(Voltage_ble >= 3000)
-                    {
-                        sleep_keep &= ~sleep_keep_Thermohygrometer_Low_battery_BIT;
-                    }
+
 
                    // BaseType_t xHigherPriorityTaskWoken = pdFALSE; /* Initialised to pdFALSE. */
                     /* Attempt to send the string to the message buffer. */
@@ -385,7 +373,8 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                                             4,portMAX_DELAY);
                     xMessageBufferSend( ble_Voltage,   \
                                             &Voltage_ble,  \
-                                            4,portMAX_DELAY);                                                                  
+                                            4,portMAX_DELAY);    
+                    xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);                                                                                      
                     degC_ble = 0;
                     humidity_ble = 0;
                     Voltage_ble = 0;
@@ -413,7 +402,6 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
             break;
         }
         ESP_LOGI(GATTC_TAG, "write descr success ");
-
         break;
     case ESP_GATTC_SRVC_CHG_EVT: {
         esp_bd_addr_t bda;
@@ -433,6 +421,7 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
         connect = false;
         get_server = false;
         ESP_LOGI(GATTC_TAG, "ESP_GATTC_DISCONNECT_EVT, reason = %d", p_data->disconnect.reason);
+        xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
         break;
     default:
         break;
@@ -553,6 +542,7 @@ static void esp_gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp
 void ble_init(void * arg)
 {
     esp_err_t ret;
+    xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
 /*  整体结构上，蓝牙可分为控制器(Controller)和主机(Host)两大部分；  
 场景一(ESP-IDF默认)：在 ESP32 的系统上，选择 BLUEDROID 为蓝⽛牙主机，并通过 VHCI（软件实现的虚拟 HCI 接⼝口）接⼝口，访问控制器器。
 
@@ -609,9 +599,19 @@ void ble_init(void * arg)
     if (local_mtu_ret){
         ESP_LOGE(GATTC_TAG, "set local  MTU failed, error code = %x", local_mtu_ret);
     }
-
-    ble_batty_low = 1;
-    sleep_keep |= sleep_keep_Thermohygrometer_Low_battery_BIT;
-
+    uint32_t duration = 30;
+    while(duration)
+    {
+        vTaskDelay(200000 / portTICK_PERIOD_MS);
+        EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
+        if((uxBits & APP_event_BLE_CONNECTED_flags_BIT) == 0)
+        {
+            esp_ble_gap_start_scanning(duration);
+        }
+        else
+        {
+            duration = 0;
+        }
+    }
     vTaskDelete(NULL);
 }

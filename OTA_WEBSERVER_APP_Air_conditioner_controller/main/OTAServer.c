@@ -112,7 +112,7 @@ void systemRebootTask(void * parameter)
 			keycon = 0;
 		}
 */
-		if((staBits & APP_event_IO_wakeup_sleep_BIT) != 0)
+		/*if((staBits & APP_event_IO_wakeup_sleep_BIT) != 0)
 		{
     		const int ext_wakeup_pin_1 = 2;
     		const uint64_t ext_wakeup_pin_1_mask = 1ULL << ext_wakeup_pin_1;
@@ -127,7 +127,7 @@ void systemRebootTask(void * parameter)
 			printf("Entering deep sleep\n");
 			sleep_keep &= ~sleep_keep_WIFI_AP_OR_STA_BIT;
 			esp_deep_sleep_start();
-		}
+		}*/
 	}
 		
 }
