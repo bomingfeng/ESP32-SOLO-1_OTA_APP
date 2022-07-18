@@ -42,7 +42,7 @@ void example_ir_tx_task(void *arg)
         vTaskDelay(800 / portTICK_PERIOD_MS);
         for(length = 0;length < 13;length++)
         {
-            printf("tx_buffer[%d] = 0x%x;\r\n",length,tx_buffer[length]);
+            //printf("tx_buffer[%d] = 0x%x;\r\n",length,tx_buffer[length]);
         }
         rmt_rx_start(example_rx_channel, true);
     }

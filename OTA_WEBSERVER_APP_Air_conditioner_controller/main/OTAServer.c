@@ -49,7 +49,7 @@ void OTA_Task_init(void)
     io_conf.pull_down_en = 0;
     gpio_config(&io_conf);
 
-	xTimer_ota = xTimerCreate("xTimer_ota",6000 * 5,pdFALSE,( void * ) 0,vTimerotaCallback);//30min
+	xTimer_ota = xTimerCreate("xTimer_ota",(60000 / portTICK_PERIOD_MS)/*min*/ * 5,pdFALSE,( void * ) 0,vTimerotaCallback);//5min
 
 	// Clear the bit
 	xEventGroupClearBits(APP_event_group,APP_event_REBOOT_BIT | APP_event_deepsleep_BIT | APP_event_IO_wakeup_sleep_BIT | APP_event_io_sleep_timer_BIT);
@@ -84,7 +84,7 @@ void systemRebootTask(void * parameter)
 
 		if((staBits & APP_event_deepsleep_BIT) != 0)
 		{
-			printf("restart to deep_sleep");
+			//printf("restart to deep_sleep");
 			vTaskDelay(3000 / portTICK_PERIOD_MS);
 			esp_deep_sleep(1000000LL * 5);	//2s
 		}
@@ -225,7 +225,7 @@ esp_err_t OTA_update_post_handler(httpd_req_t *req)
 			return ESP_FAIL;
 		}
 
-		printf("OTA RX: %d of %d\r", content_received, content_length);
+		//printf("OTA RX: %d of %d\r", content_received, content_length);
 		
 	    // Is this the first data we are receiving
 		// If so, it will have the information in the header we need. 
@@ -239,17 +239,17 @@ esp_err_t OTA_update_post_handler(httpd_req_t *req)
 			
 			//int body_part_sta = recv_len - body_part_len;
 			//printf("OTA File Size: %d : Start Location:%d - End Location:%d\r\n", content_length, body_part_sta, body_part_len);
-			printf("OTA File Size: %d\r\n", content_length);
+			//printf("OTA File Size: %d\r\n", content_length);
 
 			esp_err_t err = esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &ota_handle);
 			if (err != ESP_OK)
 			{
-				printf("Error With OTA Begin, Cancelling OTA\r\n");
+				//printf("Error With OTA Begin, Cancelling OTA\r\n");
 				return ESP_FAIL;
 			}
 			else
 			{
-				printf("Writing to partition subtype %d at offset 0x%x\r\n", update_partition->subtype, update_partition->address);
+				//printf("Writing to partition subtype %d at offset 0x%x\r\n", update_partition->subtype, update_partition->address);
 			}
 
 			// Lets write this first part of data out

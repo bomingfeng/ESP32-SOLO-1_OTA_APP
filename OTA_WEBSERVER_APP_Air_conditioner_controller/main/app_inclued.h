@@ -39,7 +39,8 @@
 #include "math.h"
 #include "driver/timer.h"
 #include "driver/ledc.h"
-
+#include "driver/adc.h"
+#include "esp_adc_cal.h"
 
 #define Gree    
 //#define Auxgroup 
@@ -68,7 +69,7 @@
 #define Sp 18 //温度上、下限
 #define Lp 15
 #define LLp 25
-#define load_time 10 //多久控制空调
+#define load_time 15 //多久控制空调
 #define sleep_time 5  //休眠时间min
 #define time_off 500 //默认定时关空调时间MIN
 #define BLe_battery_low 2210 //2110

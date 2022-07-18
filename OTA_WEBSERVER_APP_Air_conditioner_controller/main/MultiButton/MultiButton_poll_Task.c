@@ -89,7 +89,7 @@ void MultiButton_poll_Task(void *pvParam)
 	//make the timer invoking the button_ticks() interval 5ms.
 	//This function is implemented by yourself.
 	//__timer_start(button_ticks, 0, 5); 
-	ButtonTimers = xTimerCreate("ButtonTimers",1,pdTRUE,( void * ) 0,vButtonTimersCallback);
+	ButtonTimers = xTimerCreate("ButtonTimers",5,pdTRUE,( void * ) 0,vButtonTimersCallback);
 	xTimerStart(ButtonTimers,portMAX_DELAY);
 
 	button_attach(&btn1, SINGLE_CLICK,     BTN1_SINGLE_Click_Handler);

@@ -8,6 +8,9 @@
 #include "BLE_Client.h"
 #include "cpu_timer.h"
 #include "MultiButton/MultiButton_poll_Task.h"
+#include "sntp_task.h"
+#include "LED_Seg7Menu/LED_Seg7Menu.h"
+#include "ADC1_single_read_Task.h"
 
 EventGroupHandle_t APP_event_group;
 
@@ -34,41 +37,17 @@ extern MessageBufferHandle_t ds18b20degC;   //换算2831 = 28.31
 extern rmt_channel_t example_rx_channel;
 extern rmt_channel_t example_tx_channel;
 extern MessageBufferHandle_t IRPS_temp;
+extern MessageBufferHandle_t time_hour_min;
 
 extern int32_t BLe_battery;
 extern nvs_handle_t BLe_battery_handle;
 
 void test_test(void * arg)
 {
+   vTaskDelete(NULL);
     while(1)
     {
-        if(test == 0xaa55aa55)
-        {
-            ESP_LOGI("test_test", "test == 0xaa55aa55: %x\n",test);
-        }
-        else
-        {
-            ESP_LOGI("test_test", "test !=! 0xaa55aa55: %x\n",test);
-            test = 0xaa55aa55;
-        }
-             uint64_t wakeup_pin_mask = esp_sleep_get_ext1_wakeup_status();
-            int pin = __builtin_ffsll(wakeup_pin_mask) - 1;
-            printf("Wake up from GPIO %d\n", pin);
-            const int ext_wakeup_pin_1 = 2;
-    		const uint64_t ext_wakeup_pin_1_mask = 1ULL << ext_wakeup_pin_1;
-			const int ext_wakeup_pin_2 = 4;
-            const uint64_t ext_wakeup_pin_2_mask = 1ULL << ext_wakeup_pin_2;
-            printf("Enabling EXT1 wakeup on pins GPIO%d, GPIO%d\n", ext_wakeup_pin_1, ext_wakeup_pin_2);
-            esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_1_mask | ext_wakeup_pin_2_mask, ESP_EXT1_WAKEUP_ALL_LOW);
 
-			// Isolate GPIO12 pin from external circuits. This is needed for modules
-			// which have an external pull-up resistor on GPIO12 (such as ESP32-WROVER)
-			// to minimize current consumption.
-			//rtc_gpio_isolate(GPIO_NUM_12);
-
-			printf("Entering deep sleep\n");
-			sleep_keep &= ~sleep_keep_WIFI_AP_OR_STA_BIT;
-			esp_deep_sleep_start();
     }
 } 
        
@@ -81,9 +60,9 @@ void app_main()
 {
     EventBits_t staBits;
 
-    printf("welcome ！！！Compiled at:");printf(__TIME__);printf(" ");printf(__DATE__);printf("\r\n");
+    //printf("welcome ！！！Compiled at:");printf(__TIME__);printf(" ");printf(__DATE__);printf("\r\n");
 
-    printf("Create the event group,Message......\r\n");
+    //printf("Create the event group,Message......\r\n");
     // Init the event group
 	APP_event_group = xEventGroupCreate();
 
@@ -91,16 +70,16 @@ void app_main()
     ble_humidity = xMessageBufferCreate(8);
     ble_Voltage = xMessageBufferCreate(8);
     ds18b20degC = xMessageBufferCreate(8);
-
+    time_hour_min = xMessageBufferCreate(6);
     tcp_send_data  = xMessageBufferCreate(132);
     ir_rx_data  = xMessageBufferCreate(17);
     ir_tx_data =  xMessageBufferCreate(17);
     IRPS_temp = xMessageBufferCreate(8);
 
-    printf("Init GPIO & nvs_flash.....\r\n");
+    //printf("Init GPIO & nvs_flash.....\r\n");
     app_init();
 
-    printf("Create Task.....\r\n");
+    //printf("Create Task.....\r\n");
     OTA_Task_init();
     // Need this task to spin up, see why in task			
     xTaskCreate(systemRebootTask, "rebootTask", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
@@ -122,9 +101,9 @@ void app_main()
     tempps_task_init();
     xTaskCreate(IRps_task,"IRps_task",  3072, NULL, ESP_TASK_PRIO_MIN + 2,NULL);
     xTaskCreate(tempps_task,"tempps",  3072, NULL, ESP_TASK_PRIO_MIN + 1,NULL);
-    //xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
-
-
+    xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    xTaskCreate(LED_Seg7Menu_Task, "LED_Seg7Menu", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
+    
 /*   释放BT mode模式，释放内存   */
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
@@ -143,38 +122,41 @@ void app_main()
 
 
         // Open
-    printf("\n");
-    printf("Opening Non-Volatile Storage (NVS) handle... ");
+    //printf("\n");
+    //printf("Opening Non-Volatile Storage (NVS) handle... ");
     esp_err_t err = nvs_open("storage", NVS_READWRITE, &BLe_battery_handle);
     if (err != ESP_OK) 
     {
-       printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+       //printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
     }
     else 
     {
-        printf("Done\n");
+        //printf("Done\n");
 
         // Read
-        printf("Reading restart counter from NVS ... \n");
+        //printf("Reading restart counter from NVS ... \n");
         
         err = nvs_get_i32(BLe_battery_handle, "BLe_battery", &BLe_battery);
         switch (err) 
         {
             case ESP_OK:
-                printf("Done\n");
-                printf("Restart counter = %d\n", BLe_battery);
+                //printf("Done\n");
+                //printf("Restart counter = %d\n", BLe_battery);
                 break;
             case ESP_ERR_NVS_NOT_FOUND:
-                printf("The value is not initialized yet!\n");
+                //printf("The value is not initialized yet!\n");
                 break;
             default :
-                printf("Error (%s) reading!\n", esp_err_to_name(err));
+                //printf("Error (%s) reading!\n", esp_err_to_name(err));
+                break;
         }
         // Close
         nvs_close(BLe_battery_handle);
     }
 
     xTaskCreate(MultiButton_poll_Task, "Button_poll_Task", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    xTaskCreate(sntp_task, "sntp_task", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    xTaskCreate(ADC1_single_read_Task, "ADC1", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 
     //xTaskCreate(ble_init, "ble_init", 6144, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
     staBits = xEventGroupWaitBits(APP_event_group,APP_event_run_BIT | APP_event_30min_timer_BIT,\
@@ -183,5 +165,5 @@ void app_main()
     {
         xTaskCreate(ble_init, "ble_init", 6144, NULL, ESP_TASK_PRIO_MIN + 1, NULL); 
     }
-    printf("Create ble_init Task.....\r\n");
+    //printf("Create ble_init Task.....\r\n");
 }

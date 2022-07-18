@@ -183,9 +183,9 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
         ESP_LOGI(GATTC_TAG, "start handle %d end handle %d current handle value %d\n", p_data->search_res.start_handle, p_data->search_res.end_handle, p_data->search_res.srvc_id.inst_id);
         //printf("--------------------------\r\n");
         for(int i=0;i<16;i++){
-            printf("%02x",p_data->search_res.srvc_id.uuid.uuid.uuid128[i]);
+            //printf("%02x",p_data->search_res.srvc_id.uuid.uuid.uuid128[i]);
         }
-         printf("  uuid_len = %d\r\n",p_data->search_res.srvc_id.uuid.len);
+         //printf("  uuid_len = %d\r\n",p_data->search_res.srvc_id.uuid.len);
         //printf("--------------------------\r\n");
         
         bool cmp = false;
@@ -354,8 +354,8 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                     humidity_ble = humidity_ble/18;
                     Voltage_ble = Voltage_ble/18;
                     //printf("\r\n----------------------------------------------------\r\n");
-                    printf("temperature:%ddecC,humidity:%d%%,Voltage:%dmV,value_len:%d\r\n",    \
-                    degC_ble,humidity_ble,Voltage_ble,p_data->notify.value_len);
+                    //printf("temperature:%ddecC,humidity:%d%%,Voltage:%dmV,value_len:%d\r\n",    
+                    //degC_ble,humidity_ble,Voltage_ble,p_data->notify.value_len);
                     //printf("----------------------------------------------------\r\n");
 
 

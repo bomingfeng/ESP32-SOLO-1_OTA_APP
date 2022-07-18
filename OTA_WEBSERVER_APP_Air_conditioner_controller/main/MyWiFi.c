@@ -43,7 +43,7 @@ void MyWiFi_init(void)
 		tcprx_buffer = "Welcome to esp32-c3 STA.";
 	}*/
 	init_wifi_station(&OTA_server);
-	printf("Welcome to esp32-c3 STA.\r\n");
+	//printf("Welcome to esp32-c3 STA.\r\n");
 }
 
 static void ip_event_handler(void* arg, esp_event_base_t event_base,
@@ -57,7 +57,7 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base,
 			ip_addr2 = esp_ip4_addr2(&event->ip_info.ip);
 			ip_addr3 = esp_ip4_addr3(&event->ip_info.ip);
 			ip_addr4 = esp_ip4_addr4(&event->ip_info.ip);		
-        	printf("got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        	printf("got ip:" IPSTR, IP2STR(&event->ip_info.ip));printf("\r\n");
 			xEventGroupSetBits(APP_event_group,APP_event_WIFI_STA_CONNECTED_BIT);	
 
 			/* Start the web server */
@@ -100,7 +100,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 		}
 		case WIFI_EVENT_STA_START: {
 			esp_wifi_connect();
-			ESP_LOGI("WiFI","Connectiing To SSID:%s : Pass:%s\r\n", CONFIG_STATION_SSID, CONFIG_STATION_PASSPHRASE);
+			printf("Connectiing To SSID:%s : Pass:%s\r\n", CONFIG_STATION_SSID, CONFIG_STATION_PASSPHRASE);
 			break;
 		}
 		case WIFI_EVENT_STA_STOP: {
@@ -117,11 +117,11 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 			{
 				esp_wifi_connect();
 				s_retry_num++;
-				printf("retry to connect to the AP.(%d / %d)\n", s_retry_num,100);
+				//printf("retry to connect to the AP.(%d / %d)\n", s_retry_num,100);
 			} 
 			else
 			{
-				printf("connect to the AP fail\r\n");
+				//printf("connect to the AP fail\r\n");
 			}		
 			break;
 		}
@@ -159,8 +159,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 			ip_addr2 = 168;
 			ip_addr3 = 0;
 			ip_addr4 = 1;	
-        	printf("station "MACSTR" join, AID=%d",	\
-                MAC2STR(event->mac), event->aid);
+        	//printf("station "MACSTR" join, AID=%d",	
+            //   MAC2STR(event->mac), event->aid);
 			xEventGroupSetBits(APP_event_group, APP_event_WIFI_AP_CONNECTED_BIT);
 			/* Start the web server */
 			start_OTA_webserver();
@@ -168,8 +168,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 		}
 		case WIFI_EVENT_AP_STADISCONNECTED: {
 			wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
-        	printf("station "MACSTR" leave, AID=%d",	\
-                MAC2STR(event->mac), event->aid);
+        	//printf("station "MACSTR" leave, AID=%d",	
+            //    MAC2STR(event->mac), event->aid);
 			xEventGroupClearBits(APP_event_group,APP_event_WIFI_AP_CONNECTED_BIT);
 			break;
 		}
@@ -232,8 +232,8 @@ void printStationList(void)
 	ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&wifi_sta_list));	
 	ESP_ERROR_CHECK(tcpip_adapter_get_sta_list(&wifi_sta_list, &adapter_sta_list));
 
-	printf(" Connected Station List:\n");
-	printf("--------------------------------------------------\n");
+	//printf(" Connected Station List:\n");
+	//printf("--------------------------------------------------\n");
 	
 	
 
@@ -243,7 +243,7 @@ void printStationList(void)
 		{
 		
 			tcpip_adapter_sta_info_t station = adapter_sta_list.sta[i];
-			printf("%d - mac: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x - IP:" IPSTR "\n",
+			/*printf("%d - mac: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x - IP:" IPSTR "\n",
 				i + 1,
 				station.mac[0],
 				station.mac[1],
@@ -252,14 +252,14 @@ void printStationList(void)
 				station.mac[4],
 				station.mac[5],
 				//ip4addr_ntoa(&(station.ip)));
-				IP2STR(&(station.ip)));
+				IP2STR(&(station.ip)));*/
 		}
 
-		printf("\r\n");
+		//printf("\r\n");
 	}
 	else
 	{
-		printf("No Sations Connected\r\n");
+		//printf("No Sations Connected\r\n");
 	}
 
 }
@@ -313,7 +313,7 @@ void init_wifi_softap(void *arg)
 
 	start_dhcp_server();
 	
-	printf("ESP WiFi started in AP mode \n");
+	//printf("ESP WiFi started in AP mode \n");
 	
 	
 	 
@@ -384,7 +384,7 @@ void init_wifi_station(void *arg)
  -----------------------------------------------------------------------------*/
 void print_sta_info(void *pvParam) 
 {
-	printf("print_sta_info task started \n");
+	//printf("print_sta_info task started \n");
 	
 	while (1) 
 	{	
@@ -392,11 +392,11 @@ void print_sta_info(void *pvParam)
 		
 		if (staBits != 0)
 		{
-			printf("New station connected\n\n");
+			//printf("New station connected\n\n");
 		}
 		else
 		{
-			printf("A station disconnected\n\n");
+			//printf("A station disconnected\n\n");
 		}
 		
 		printStationList();
@@ -417,7 +417,7 @@ void wifi_ap_sta(void *pvParam)
 		xMessageBufferReset(tcp_send_data);
 		xTaskCreate(tcp_client_task, "tcp_client", 3072, NULL,ESP_TASK_PRIO_MIN + 1, NULL);
 	
-		printf("Create tcp_client AP\r\n");
+		//printf("Create tcp_client AP\r\n");
 
 		EventBits_t uxBits = xEventGroupWaitBits(APP_event_group, \
 									APP_event_tcp_client_send_BIT, \
@@ -445,7 +445,7 @@ void wifi_ap_sta(void *pvParam)
 			xMessageBufferReset(tcp_send_data);
 			xTaskCreate(tcp_client_task, "tcp_client", 3072, NULL,ESP_TASK_PRIO_MIN + 1, NULL);	
 
-			printf("Create tcp_client STA.\r\n");
+			//printf("Create tcp_client STA.\r\n");
 
 			EventBits_t uxBits = xEventGroupWaitBits(APP_event_group, \
 										APP_event_tcp_client_send_BIT, \
@@ -465,7 +465,7 @@ void wifi_ap_sta(void *pvParam)
 		else
 		{
 			sleep_keep |= sleep_keep_WIFI_AP_OR_STA_BIT;
-    		printf("wifi Switch to AP \r\n");
+    		//printf("wifi Switch to AP \r\n");
 			vTaskDelay(100 / portTICK_PERIOD_MS);
 			xEventGroupSetBits(APP_event_group,APP_event_deepsleep_BIT);
 		}

@@ -56,7 +56,7 @@ void example_ir_rx_task(void *arg)
                         xEventGroupSetBits(APP_event_group,APP_event_IR_LED_flags_BIT);
                         ledc_set_duty(ledc_channel[0].speed_mode, ledc_channel[0].channel, 16000);
                         ledc_update_duty(ledc_channel[0].speed_mode, ledc_channel[0].channel);
-                        printf("ir ok\r\n");
+                        //printf("ir ok\r\n");
                     }
 #endif
 
@@ -82,17 +82,17 @@ void example_ir_rx_task(void *arg)
 #endif
                     else
                     {
-                        printf("ir error1\r\n");
+                        //printf("ir error1\r\n");
                     }
                 }
                 else
                 {
-                    printf("ir error2\r\n");
+                    //printf("ir error2\r\n");
                 }
             }
             else
             {
-                printf("ir error3:%d.\r\n",length);
+                //printf("ir error3:%d.\r\n",length);
             }
             //after parsing the data, return spaces to ringbuffer.
             vRingbufferReturnItem(rb, (void *) items);

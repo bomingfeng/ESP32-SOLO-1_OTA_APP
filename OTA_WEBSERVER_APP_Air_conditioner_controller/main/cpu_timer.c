@@ -54,7 +54,7 @@ void IRAM_ATTR timer_group1_isr(void *para)
         timer_group_enable_alarm_in_isr(TIMER_GROUP_1, TIMER_1);
     }
     else {
-        printf("timer_group0_isr!\r\n");
+        //printf("timer_group0_isr!\r\n");
     }
 }
 

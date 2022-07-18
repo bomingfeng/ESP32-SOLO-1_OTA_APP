@@ -35,7 +35,7 @@ void app_init(void)
                 {
                     gpio_set_level(22,1);
                     ii = 0xaa;
-                    printf("esp_ota_get_next_update_partition\r\n");
+                    //printf("esp_ota_get_next_update_partition\r\n");
                     partition = esp_ota_get_next_update_partition(NULL);
                 }
                 vTaskDelay(1950 / portTICK_PERIOD_MS);
@@ -43,13 +43,13 @@ void app_init(void)
                 {
                     gpio_set_level(23,0);
                     ii = 0xaa;
-                    printf("ESP_PARTITION_SUBTYPE_APP_FACTORY\r\n");
+                    //printf("ESP_PARTITION_SUBTYPE_APP_FACTORY\r\n");
                     partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP,    \
 				    ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
                 }
                 if(ii == 0xaa)
                 {
-                    printf("restart to boot,%d\r\n",gpio_get_level(CONFIG_INPUT_GPIO));
+                    //printf("restart to boot,%d\r\n",gpio_get_level(CONFIG_INPUT_GPIO));
                     esp_ota_set_boot_partition(partition);
                     vTaskDelay(2000 / portTICK_PERIOD_MS);
                     esp_restart();
@@ -88,6 +88,89 @@ void app_init(void)
     gpio_set_direction(12, GPIO_MODE_OUTPUT);
     gpio_set_level(12,0);
     gpio_set_pull_mode(12,GPIO_PULLUP_ONLY);
+
+/*数码管IO初始化
+
+*/
+    //位
+    gpio_reset_pin(21);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(21, GPIO_MODE_OUTPUT);
+    gpio_set_level(21,0);
+    gpio_set_pull_mode(21,GPIO_PULLUP_ONLY);
+
+    gpio_reset_pin(19);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(19, GPIO_MODE_OUTPUT);
+    gpio_set_level(19,0);
+    gpio_set_pull_mode(19,GPIO_PULLUP_ONLY);
+
+    gpio_reset_pin(18);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(18, GPIO_MODE_OUTPUT);
+    gpio_set_level(18,0);
+    gpio_set_pull_mode(18,GPIO_PULLUP_ONLY);
+
+    gpio_reset_pin(5);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(5, GPIO_MODE_OUTPUT);
+    gpio_set_level(5,0);
+    gpio_set_pull_mode(5,GPIO_PULLUP_ONLY);   
+
+//段
+    //A
+    gpio_reset_pin(17);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(17, GPIO_MODE_OUTPUT);
+    gpio_set_level(17,0);
+    gpio_set_pull_mode(17,GPIO_PULLUP_ONLY); 
+
+    //c
+    gpio_reset_pin(16);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(16, GPIO_MODE_OUTPUT);
+    gpio_set_level(16,0);
+    gpio_set_pull_mode(16,GPIO_PULLUP_ONLY);
+
+    //b
+    gpio_reset_pin(4);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(4, GPIO_MODE_OUTPUT);
+    gpio_set_level(4,0);
+    gpio_set_pull_mode(4,GPIO_PULLUP_ONLY);
+
+    gpio_reset_pin(12);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(12, GPIO_MODE_OUTPUT);
+    gpio_set_level(12,0);
+    gpio_set_pull_mode(12,GPIO_PULLUP_ONLY);
+
+    gpio_reset_pin(14);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(14, GPIO_MODE_OUTPUT);
+    gpio_set_level(14,0);
+    gpio_set_pull_mode(14,GPIO_PULLUP_ONLY);
+
+    //G
+    gpio_reset_pin(32);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(32, GPIO_MODE_OUTPUT);
+    gpio_set_level(32,0);
+    gpio_set_pull_mode(32,GPIO_PULLUP_ONLY);
+
+    //E
+    gpio_reset_pin(33);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(33, GPIO_MODE_OUTPUT);
+    gpio_set_level(33,0);
+    gpio_set_pull_mode(33,GPIO_PULLUP_ONLY);
+
+    //DP
+    gpio_reset_pin(26);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(26, GPIO_MODE_OUTPUT);
+    gpio_set_level(26,0);
+    gpio_set_pull_mode(26,GPIO_PULLUP_ONLY);
 
     //Initialize NVS
 	esp_err_t err = nvs_flash_init();

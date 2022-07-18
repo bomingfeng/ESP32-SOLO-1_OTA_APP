@@ -31,6 +31,14 @@
     "cpu_timer.h": "c",
     "gpio.h": "c",
     "multibutton_poll_task.h": "c",
-    "chrono": "c"
+    "chrono": "c",
+    "app_init.h": "c",
+    "led_seg7menu.h": "c",
+    "segdynamicscan.h": "c",
+    "ledc.h": "c",
+    "esp_sntp.h": "c",
+    "sntp_task.h": "c",
+    "*.inc": "c",
+    "adc1_single_read_task.h": "c"
   }
 }

@@ -896,29 +896,43 @@ bool ds18b20_read_temp_multi(int pin, ds18b20_addr_t *addr_list, int addr_count,
 void ds18x20_task(void *arg)
 {
     int degC = 0;
-    
     cpu_timer0_init();
-    printf("This is from ds18b20\r\n");
+    //printf("This is from ds18b20\r\n");
     float t = 0,temp_c = 0.0;
     while(1)
     {
         for(int a = 0; a < 18;a++)    
         {
             t = ds18b20_read_single(CONFIG_DS18B20_SENSOR_GPIO);//pin 8 pull up 10k
-            printf("got temprsure2 %.2f\r\n",t);           
+            //printf("got temprsure2 %.2f\r\n",t);           
             temp_c = t * 0.986;
             degC = degC + ((int)((temp_c + 0.005) * 100));
             ESP_LOGI("ds18b20", "DS18B20 Sensor reports++ %d deg C\n",degC);
+            EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
+            if((uxBits & APP_event_30min_timer_BIT) != APP_event_30min_timer_BIT)
+            {   
+                int deg = ((int)((temp_c + 0.005) * 100));
+                printf("DS18B20 Sensor %d deg C\n",deg);
+                temp_c = 0;
+                if(deg == 0){
+                    xEventGroupClearBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
+                }
+                else{
+                    xMessageBufferSend(ds18b20degC,&deg,4,portMAX_DELAY);
+                    xEventGroupSetBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
+                    deg = 0;
+                }
+            }
             vTaskDelay(pdMS_TO_TICKS(120000));
         }
         degC = degC/18;
-        printf("DS18B20 Sensor reportsAVG %d deg C\n",degC);
-        xMessageBufferSend(ds18b20degC,&degC,4,portMAX_DELAY);
         if(degC == 0){
                 xEventGroupClearBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
             }
             else{
                 xEventGroupSetBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
+                //printf("DS18B20 Sensor reportsAVG %d deg C\n",degC);
+                xMessageBufferSend(ds18b20degC,&degC,4,portMAX_DELAY);
                 degC = 0;
             }
     }
