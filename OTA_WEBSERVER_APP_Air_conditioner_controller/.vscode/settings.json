@@ -39,6 +39,7 @@
     "esp_sntp.h": "c",
     "sntp_task.h": "c",
     "*.inc": "c",
-    "adc1_single_read_task.h": "c"
+    "adc1_single_read_task.h": "c",
+    "ratio": "c"
   }
 }

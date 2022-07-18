@@ -41,6 +41,9 @@
 #include "driver/ledc.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
+#include "freertos/queue.h"
+#include "bt_hci_common.h"
+
 
 #define Gree    
 //#define Auxgroup 
