@@ -607,7 +607,7 @@ void ble_init(void * arg)
     uint32_t duration = 30;
     while(duration)
     {
-        vTaskDelay(200000 / portTICK_PERIOD_MS);
+        vTaskDelay(300000 / portTICK_PERIOD_MS);
         EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
         if((uxBits & APP_event_BLE_CONNECTED_flags_BIT) == 0)
         {
@@ -615,7 +615,7 @@ void ble_init(void * arg)
         }
         else
         {
-            duration = 0;
+            //duration = 0;
         }
     }
     vTaskDelete(NULL);

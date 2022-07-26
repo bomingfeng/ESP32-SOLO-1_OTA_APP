@@ -176,7 +176,7 @@ void IRps_task(void *arg)
         xMessageBufferReceive(ir_rx_data,(void *)ir_ps_data,sizeof(ir_ps_data),portMAX_DELAY);
         for(i = 0;i < 13;i++)
         {
-            //printf("ir_ps_data[%d] = 0x%02x;\r\n",i,ir_ps_data[i]);
+            printf("ir_ps_data[%d] = 0x%02x;\r\n",i,ir_ps_data[i]);
         }
         
 #ifdef  Gree
@@ -215,55 +215,55 @@ void IRps_task(void *arg)
                 switch (IR_temp)
                 {
                     case 0:
-                        IR_temp = 2670; //1600
+                        IR_temp = 2606; //1600
                         break;
                     case 1:
-                        IR_temp = 2670; //1700
+                        IR_temp = 2620; //1700
                         break;
                     case 2:
-                        IR_temp = 2670; //1800
+                        IR_temp = 2634; //1800
                         break;
                     case 3:
-                        IR_temp = 2670; //1900
+                        IR_temp = 2648; //1900
                         break;
                     case 4:
-                        IR_temp = 2670; //2000
+                        IR_temp = 2662; //2000
                         break;
                     case 5:
-                        IR_temp = 2670; //2100
+                        IR_temp = 2676; //2100
                         break;
                     case 6:
-                        IR_temp = 2670; //2200
+                        IR_temp = 2690; //2200
                         break;
                     case 7:
-                        IR_temp = 2670;//23
+                        IR_temp = 2704;//23
                         break;
                     case 8:
-                        IR_temp = 2670;//24
+                        IR_temp = 2718;//24
                         break;
                     case 9:
-                        IR_temp = 2670;//25
+                        IR_temp = 2732;//25
                         break;
                     case 10:
-                        IR_temp = 2680;//26
+                        IR_temp = 2746;//26
                         break;
                     case 11:
                         IR_temp = 2760;//2700
                         break;
                     case 12:
-                        IR_temp = 2790;
+                        IR_temp = 2780;
                         break;
                     case 13:
-                        IR_temp = 2900;
+                        IR_temp = 2800;
                         break;
                     case 14:
-                        IR_temp = 3000;
+                        IR_temp = 2820;
                         break;
                     case 15:
-                        IR_temp = 3000;
+                        IR_temp = 2840;
                         break;    
                     default:	
-                        IR_temp = 2730; 
+                        IR_temp = 2750; 
                         break;
                 }
                 xMessageBufferSend(IRPS_temp,&IR_temp,4,portMAX_DELAY);
@@ -642,7 +642,7 @@ void tempps_task(void *arg)
                       ((staBits & (APP_event_run_BIT | APP_event_30min_timer_BIT | APP_event_ds18b20_CONNECTED_flags_BIT)) == \
                       (APP_event_run_BIT | APP_event_30min_timer_BIT | APP_event_ds18b20_CONNECTED_flags_BIT)))
         {
-            if(Voltage_ble <= (BLe_battery_low - 130))
+            if((Voltage_ble <= BLe_battery_low) || ((staBits & APP_event_BLE_CONNECTED_flags_BIT) != APP_event_BLE_CONNECTED_flags_BIT))
             {
                 if((ds18b20C >= (IR_temp + Sp)) && ((xEventGroupGetBits(APP_event_group)  & APP_event_SP_flags_BIT) == 0))
                 {
@@ -752,9 +752,30 @@ void tempps_task(void *arg)
                         ir_ps_data[11] = 0x00;
                         ir_ps_data[12] = 0x00;
                         23开机，关灯,风速最大。左右上下扫风开
+
+                        ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x00;
+                        ir_ps_data[2] = 0x0a;
+                        ir_ps_data[3] = 0x49;
+                        ir_ps_data[4] = 0xe0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x00;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x00;
+                        ir_ps_data[12] = 0x00;
+                        26开机，关灯,风速自动。左右上下扫风开
                     */
-                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x00;ir_ps_data[2] = 0x07;ir_ps_data[3] = 0x79;
-                    ir_ps_data[4] = 0xb0;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
+                        ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x00;
+                        ir_ps_data[2] = 0x0a;
+                        ir_ps_data[3] = 0x49;
+                        ir_ps_data[4] = 0xe0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
 #endif                   
 
 #ifdef  Auxgroup     
@@ -1073,9 +1094,29 @@ void tempps_task(void *arg)
                         ir_ps_data[11] = 0x00;
                         ir_ps_data[12] = 0x00;
                         23开机，关灯,风速最大。左右上下扫风开
+                                            ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x00;
+                        ir_ps_data[2] = 0x0a;
+                        ir_ps_data[3] = 0x49;
+                        ir_ps_data[4] = 0xe0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x00;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x00;
+                        ir_ps_data[12] = 0x00;
+                        26开机，关灯,风速自动。左右上下扫风开
                     */
-                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x00;ir_ps_data[2] = 0x07;ir_ps_data[3] = 0x79;
-                    ir_ps_data[4] = 0xb0;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
+                        ir_ps_data[0] = 0x50;
+                        ir_ps_data[1] = 0x00;
+                        ir_ps_data[2] = 0x0a;
+                        ir_ps_data[3] = 0x49;
+                        ir_ps_data[4] = 0xe0;
+                        ir_ps_data[5] = 0x00;
+                        ir_ps_data[6] = 0x00;
+                        ir_ps_data[7] = 0x11;
 #endif  
 
 #ifdef  Auxgroup     
@@ -1443,9 +1484,10 @@ void tempps_task(void *arg)
             {                
                 segDisBuff[1] |= SEG7_CODE_DP;
                 segDisBuff[2] |= SEG7_CODE_DP;  
+
             }
             segDisBuff[3] = SegDigRevRevCode[(hour_min & 0xFF) % 10];
-            if((uxBits & APP_event_run_BIT) == APP_event_run_BIT)
+            if((uxBits & APP_event_SP_flags_BIT) == APP_event_SP_flags_BIT)
             {
                 segDisBuff[3] |= SEG7_CODE_DP_Rev_Rev;
             }

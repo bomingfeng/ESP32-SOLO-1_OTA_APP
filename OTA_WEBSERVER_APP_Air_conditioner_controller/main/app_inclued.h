@@ -78,7 +78,7 @@
 #define load_time 45 //多久控制空调
 #define sleep_time 5  //休眠时间min
 #define time_off 500 //默认定时关空调时间MIN
-#define BLe_battery_low 2210 //2110
+#define BLe_battery_low 1810 //2110
 #define BLe_battery_High 2320
 
 extern EventGroupHandle_t APP_event_group;
