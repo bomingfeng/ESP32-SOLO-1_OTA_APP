@@ -68,11 +68,14 @@
 #define IR_PARSER_CONFIG(dev) IR_PARSER_YKR_T_091_CONFIG(dev)
 #endif
 
+#define LYWSD03MMC    
+//#define XL0801
+
 #define GATTC_TAG "LYWSD03MMC"
 #define Sp 18 //温度上、下限
 #define Lp 15
 #define LLp 25
-#define load_time 15 //多久控制空调
+#define load_time 45 //多久控制空调
 #define sleep_time 5  //休眠时间min
 #define time_off 500 //默认定时关空调时间MIN
 #define BLe_battery_low 2210 //2110

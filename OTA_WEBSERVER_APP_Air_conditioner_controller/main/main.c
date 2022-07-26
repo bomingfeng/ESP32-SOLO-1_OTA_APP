@@ -158,14 +158,20 @@ void app_main()
     xTaskCreate(sntp_task, "sntp_task", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
     xTaskCreate(ADC1_single_read_Task, "ADC1", 2048, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 
+#ifdef  XL0801
     extern void ble_adv_scan_Task(void * arg);
     xTaskCreate(ble_adv_scan_Task, "adv_scan", 6144, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
 
+#endif
+
+#ifdef  LYWSD03MMC
     staBits = xEventGroupWaitBits(APP_event_group,APP_event_run_BIT | APP_event_30min_timer_BIT,\
                                                 pdFALSE,pdTRUE,portMAX_DELAY);
     if((staBits & (APP_event_run_BIT | APP_event_30min_timer_BIT)) == (APP_event_run_BIT | APP_event_30min_timer_BIT))
     {
-        //xTaskCreate(ble_init, "ble_init", 6144, NULL, ESP_TASK_PRIO_MIN + 1, NULL); 
+        xTaskCreate(ble_init, "ble_init", 6144, NULL, ESP_TASK_PRIO_MIN + 1, NULL); 
     }
     //printf("Create ble_init Task.....\r\n");
+#endif
+
 }

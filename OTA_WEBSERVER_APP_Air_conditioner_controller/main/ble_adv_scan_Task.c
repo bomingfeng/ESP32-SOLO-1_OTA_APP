@@ -7,6 +7,7 @@
  */
 #include "app_inclued.h"
 
+#ifdef XL0801
 static const char *TAG = "BLE_ADV_SCAN";
 
 typedef struct {
@@ -22,6 +23,7 @@ typedef struct {
 MessageBufferHandle_t ble_degC;  //换算2831 = 28.31
 MessageBufferHandle_t ble_humidity;
 MessageBufferHandle_t ble_Voltage;
+TimerHandle_t Read_ble_xTimer;
 
 static uint8_t hci_cmd_buf[128];
 
@@ -304,22 +306,27 @@ void hci_evt_process(void *pvParameters)
                                 Voltage_ble += ((data_msg[13] << 8) + data_msg[14]) * 10;
                                 degC_ble += ((data_msg[15] << 8) + data_msg[16]) * 10;
                                 humidity_ble += data_msg[17] * 100;
+                                if(num >= 18)
+                                {
+                                    degC_ble /= 18;humidity_ble /= 18;Voltage_ble /= 18;
+                                    xMessageBufferSend( ble_degC,   \
+                                                &degC_ble,  \
+                                                4,portMAX_DELAY);
+                                    xMessageBufferSend( ble_humidity,   \
+                                                            &humidity_ble,  \
+                                                            4,portMAX_DELAY);
+                                    xMessageBufferSend( ble_Voltage,   \
+                                                            &Voltage_ble,  \
+                                                            4,portMAX_DELAY);   
+                                    xTimerStop(Read_ble_xTimer,portMAX_DELAY);                        
+                                    xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+                                    printf("degC_ble:%d( /100);humidity_ble:%d( /100);Voltage_ble:%dmv. \r\n",degC_ble,humidity_ble,Voltage_ble);
+                                    Voltage_ble = 0;degC_ble = 0;humidity_ble = 0;num = 0;
+                                }
                             }
-                            if(num >= 18)
+                            else
                             {
-                                degC_ble /= 18;humidity_ble /= 18;Voltage_ble /= 18;
-                                xMessageBufferSend( ble_degC,   \
-                                            &degC_ble,  \
-                                            4,portMAX_DELAY);
-                                xMessageBufferSend( ble_humidity,   \
-                                                        &humidity_ble,  \
-                                                        4,portMAX_DELAY);
-                                xMessageBufferSend( ble_Voltage,   \
-                                                        &Voltage_ble,  \
-                                                        4,portMAX_DELAY);    
-                                xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
-                                printf("degC_ble:%d( /100);humidity_ble:%d( /100);Voltage_ble:%dmv. \r\n",degC_ble,humidity_ble,Voltage_ble);
-                                Voltage_ble = 0;degC_ble = 0;humidity_ble = 0;num = 0;
+                                xTimerReset(Read_ble_xTimer,portMAX_DELAY); 
                             }
                         }
                     }
@@ -348,11 +355,20 @@ reset:
     }
 }
 
+void Read_ble_xTimerCallback(TimerHandle_t xTimer)
+{
+    xTimerStop(Read_ble_xTimer,portMAX_DELAY);
+    xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+}
+
 void ble_adv_scan_Task(void * arg)
 {
     bool continue_commands = 1;
     int cmd_cnt = 0;
     esp_err_t ret;
+
+    Read_ble_xTimer = xTimerCreate("Timer0",(60000 / portTICK_PERIOD_MS)/*min*/ * 5,pdFALSE,( void * ) 0,Read_ble_xTimerCallback);//1min
+
     xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
@@ -391,3 +407,4 @@ void ble_adv_scan_Task(void * arg)
     xTaskCreatePinnedToCore(&hci_evt_process, "hci_evt_process", 2048, NULL, 6, NULL, 0);
     vTaskDelete(NULL);
 }
+#endif

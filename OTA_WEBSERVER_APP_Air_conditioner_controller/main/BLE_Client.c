@@ -1,5 +1,10 @@
 #include "BLE_Client.h"
 
+nvs_handle_t BLe_battery_handle;
+int32_t BLe_battery;
+
+#ifdef  LYWSD03MMC
+
 /*在此示例中，有一个应用程序配置文件，其ID定义为：*/
 #define PROFILE_NUM      1
 #define PROFILE_A_APP_ID 0
@@ -17,8 +22,8 @@ uint32_t humidity_ble = 0;
 uint32_t Voltage_ble = 0;
 uint8_t con = 0;
 
-int32_t BLe_battery;
-nvs_handle_t BLe_battery_handle;
+
+
 
 extern char * tcprx_buffer;
 extern MessageBufferHandle_t tcp_send_data;
@@ -615,3 +620,5 @@ void ble_init(void * arg)
     }
     vTaskDelete(NULL);
 }
+
+#endif
