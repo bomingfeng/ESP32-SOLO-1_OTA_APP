@@ -5,6 +5,8 @@ int32_t BLe_battery;
 
 #ifdef  LYWSD03MMC
 
+TimerHandle_t Read_ble_xTimer;
+
 /*在此示例中，有一个应用程序配置文件，其ID定义为：*/
 #define PROFILE_NUM      1
 #define PROFILE_A_APP_ID 0
@@ -359,8 +361,8 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                     humidity_ble = humidity_ble/18;
                     Voltage_ble = Voltage_ble/18;
                     //printf("\r\n----------------------------------------------------\r\n");
-                    //printf("temperature:%ddecC,humidity:%d%%,Voltage:%dmV,value_len:%d\r\n",    
-                    //degC_ble,humidity_ble,Voltage_ble,p_data->notify.value_len);
+                    printf("temperature:%ddecC,humidity:%d%%,Voltage:%dmV,value_len:%d\r\n",    \
+                      degC_ble,humidity_ble,Voltage_ble,p_data->notify.value_len);
                     //printf("----------------------------------------------------\r\n");
 
 
@@ -379,7 +381,8 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                     xMessageBufferSend( ble_Voltage,   \
                                             &Voltage_ble,  \
                                             4,portMAX_DELAY);    
-                    xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);                                                                                      
+                    xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);   
+                    xTimerStop(Read_ble_xTimer,portMAX_DELAY);                                                                                    
                     degC_ble = 0;
                     humidity_ble = 0;
                     Voltage_ble = 0;
@@ -544,10 +547,18 @@ static void esp_gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp
     } while (0);
 }
 
+void Read_ble_xTimerCallback(TimerHandle_t xTimer)
+{
+    xTimerStop(Read_ble_xTimer,portMAX_DELAY);
+    xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+}
+
 void ble_init(void * arg)
 {
     esp_err_t ret;
     xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+    Read_ble_xTimer = xTimerCreate("Timer0",(60000 / portTICK_PERIOD_MS)/*min*/ * 20,pdFALSE,( void * ) 0,Read_ble_xTimerCallback);//1min
+
 /*  整体结构上，蓝牙可分为控制器(Controller)和主机(Host)两大部分；  
 场景一(ESP-IDF默认)：在 ESP32 的系统上，选择 BLUEDROID 为蓝⽛牙主机，并通过 VHCI（软件实现的虚拟 HCI 接⼝口）接⼝口，访问控制器器。
 
@@ -617,6 +628,7 @@ void ble_init(void * arg)
         {
             //duration = 0;
         }
+        xTimerReset(Read_ble_xTimer,portMAX_DELAY);
     }
     vTaskDelete(NULL);
 }

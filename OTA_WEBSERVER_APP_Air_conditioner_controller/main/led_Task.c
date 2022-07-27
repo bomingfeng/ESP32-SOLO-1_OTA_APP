@@ -91,13 +91,13 @@ void led_instructions(void *pvParam)
     {
         EventBits_t staBits = xEventGroupWaitBits(APP_event_group, APP_event_Standby_BIT | APP_event_run_BIT,\
                                                 pdFALSE,pdFALSE, 100 / portTICK_PERIOD_MS);
-        if(BLe_battery <= BLe_battery_low)
+        if((BLe_battery <= BLe_battery_low) || ((staBits & APP_event_BLE_CONNECTED_flags_BIT) != APP_event_BLE_CONNECTED_flags_BIT))
         {
             if((staBits & APP_event_IR_LED_flags_BIT) != 0)
             {
                 xEventGroupClearBits(APP_event_group,APP_event_IR_LED_flags_BIT);
             }
-            else if((((staBits & APP_event_Standby_BIT) != 0) && (Standby == 0xaa)) || (BLe_battery <= BLe_battery_low))
+            else if((((staBits & APP_event_Standby_BIT) != 0) && (Standby == 0xaa)) || (BLe_battery <= BLe_battery_low)  || ((staBits & APP_event_BLE_CONNECTED_flags_BIT) != APP_event_BLE_CONNECTED_flags_BIT))
             {
                 Standby = 0x55;
                 ledc_set_duty(ledc_channel[0].speed_mode, ledc_channel[0].channel, 300);
