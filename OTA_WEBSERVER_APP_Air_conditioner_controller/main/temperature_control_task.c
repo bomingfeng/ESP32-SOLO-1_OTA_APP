@@ -159,8 +159,8 @@ void tempps_task_init(void)
     xTimers2 = xTimerCreate("Timer2",(60000 / portTICK_PERIOD_MS)/*min*/ * 90,pdFALSE,( void * ) 0,vTimer2Callback);//90min
     io_sleep_timers = xTimerCreate("io_sleep_timers",(60000 / portTICK_PERIOD_MS)/*min*/ * sleep_time,pdFALSE,( void * ) 0,io_sleep_timersCallback);//min
     time_sleep_timers = xTimerCreate("time_sleep_timers",(60000 / portTICK_PERIOD_MS)/*min*/ * time_off,pdFALSE,( void * ) 0,time_sleep_timersCallback);
-    xEventGroupClearBits(APP_event_group,APP_event_30min_timer_BIT | APP_event_SP_flags_BIT |APP_event_LP_flags_BIT | APP_event_LLP_flags_BIT);
-    xEventGroupSetBits(APP_event_group,APP_event_lighting_BIT);
+    xEventGroupClearBits(APP_event_group,APP_event_30min_timer_BIT | APP_event_LP_flags_BIT | APP_event_LLP_flags_BIT);
+    xEventGroupSetBits(APP_event_group,APP_event_lighting_BIT | APP_event_SP_flags_BIT);
 }
 
 void IRps_task(void *arg)
@@ -189,7 +189,8 @@ void IRps_task(void *arg)
             if((ir_ps_data[3] & 0x08) == 0x08)    //判断是否开空调，开
             {
                 xTimerStop(io_sleep_timers,portMAX_DELAY);  //关掉待机休眠定时器
-                xEventGroupClearBits(APP_event_group,APP_event_io_sleep_timer_BIT | APP_event_SP_flags_BIT |APP_event_LP_flags_BIT | APP_event_LLP_flags_BIT);
+                xEventGroupSetBits(APP_event_group,APP_event_SP_flags_BIT);  
+                xEventGroupClearBits(APP_event_group,APP_event_io_sleep_timer_BIT | APP_event_LP_flags_BIT | APP_event_LLP_flags_BIT);
                 uxBits = xEventGroupGetBits(APP_event_group);
                 if((uxBits & APP_event_run_BIT) == 0)
                 {
@@ -369,7 +370,8 @@ void IRps_task(void *arg)
             if((ir_ps_data[9] & 0x04) == 0x04)    //判断是否开空调，开
             {
                 xTimerStop(io_sleep_timers,portMAX_DELAY);  //关掉待机休眠定时器
-                xEventGroupClearBits(APP_event_group,APP_event_io_sleep_timer_BIT | APP_event_SP_flags_BIT |APP_event_LP_flags_BIT | APP_event_LLP_flags_BIT);
+                xEventGroupSetBits(APP_event_group,APP_event_SP_flags_BIT);
+                xEventGroupClearBits(APP_event_group,APP_event_io_sleep_timer_BIT | APP_event_LP_flags_BIT | APP_event_LLP_flags_BIT);
                 uxBits = xEventGroupGetBits(APP_event_group);
                 if((uxBits & APP_event_run_BIT) == 0)
                 {
@@ -413,41 +415,41 @@ void IRps_task(void *arg)
                 IR_temp = ir_ps_data[1] & 0x1f;
                 switch (IR_temp)
                 {
-                    case 0x02:IR_temp = 2650;
+                    case 0x02:IR_temp = 2606;//16
                         break;
-                    case 0x12:IR_temp = 2650;
+                    case 0x12:IR_temp = 2620;//17
                         break;
-                    case 0x0a:IR_temp = 2650;
+                    case 0x0a:IR_temp = 2634;//18
                         break;
-                    case 0x1a:IR_temp = 2650;
+                    case 0x1a:IR_temp = 2648;//19
                         break;
-                    case 0x06:IR_temp = 2650;
+                    case 0x06:IR_temp = 2662;//20
                         break;
-                    case 0x16:IR_temp = 2650;
+                    case 0x16:IR_temp = 2676;//21
                         break;
-                    case 0x0e:IR_temp = 2650;
+                    case 0x0e:IR_temp = 2690;//22
                         break;
-                    case 0x1e:IR_temp = 2650;
+                    case 0x1e:IR_temp = 2704;//23
                         break;
-                    case 0x01:IR_temp = 2650;
+                    case 0x01:IR_temp = 2718;//24
                         break;
-                    case 0x11:IR_temp = 2650;
+                    case 0x11:IR_temp = 2732;//25
                         break;
-                    case 0x09:IR_temp = 2650;
+                    case 0x09:IR_temp = 2746;//26
                         break;
-                    case 0x19:IR_temp = 2750;
+                    case 0x19:IR_temp = 2760;//27
                         break;
-                    case 0x05:IR_temp = 2800;
+                    case 0x05:IR_temp = 2800;//28
                         break;
-                    case 0x15:IR_temp = 2900;
+                    case 0x15:IR_temp = 2900;//29
                         break;
-                    case 0x0d:IR_temp = 3000;
+                    case 0x0d:IR_temp = 3000;//30
                         break;
                     case 0x1d:IR_temp = 3100;
                         break;
                     case 0x03:IR_temp = 3200; 
                         break;
-                    default:  IR_temp = 2800;
+                    default:  IR_temp = 2760;
                         break;
                 }
                 if((ir_ps_data[11] & 0x08) == 0x08)
@@ -783,49 +785,68 @@ void tempps_task(void *arg)
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
                 /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x05;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x00;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0xaa;//BIT3显示置位
-                    ir_ps_data[12] = 0x1a;
-                    28降温 开（开机状态）1风速
+                ir_ps_data[0] = 0xc3;
+                ir_ps_data[1] = 0x09;
+                ir_ps_data[2] = 0x00;
+                ir_ps_data[3] = 0x00;
+                ir_ps_data[4] = 0x05;
+                ir_ps_data[5] = 0x00;
+                ir_ps_data[6] = 0x04;
+                ir_ps_data[7] = 0x00;
+                ir_ps_data[8] = 0x00;
+                ir_ps_data[9] = 0x04;
+                ir_ps_data[10] = 0x00;
+                ir_ps_data[11] = 0xa8;
+                ir_ps_data[12] = 0x12;
+
+                    26降温 开（开机状态）自动风速 左右上下开
                 */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x05;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0xaa;
-                        ir_ps_data[12] = 0x1a;
+                        ir_ps_data[0] = 0xc3;
+                ir_ps_data[1] = 0x09;
+                ir_ps_data[2] = 0x00;
+                ir_ps_data[3] = 0x00;
+                ir_ps_data[4] = 0x05;
+                ir_ps_data[5] = 0x00;
+                ir_ps_data[6] = 0x04;
+                ir_ps_data[7] = 0x00;
+                ir_ps_data[8] = 0x00;
+                ir_ps_data[9] = 0x04;
+                ir_ps_data[10] = 0x00;
+                ir_ps_data[11] = 0xa8;
+                ir_ps_data[12] = 0x12;
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
                 /*
                     ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x05;
+                    ir_ps_data[1] = 0x09;
                     ir_ps_data[2] = 0x00;
                     ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
+                    ir_ps_data[4] = 0x05;
                     ir_ps_data[5] = 0x00;
                     ir_ps_data[6] = 0x04;
                     ir_ps_data[7] = 0x00;
                     ir_ps_data[8] = 0x00;
                     ir_ps_data[9] = 0x04;
                     ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0x82;  //BIT3显示不置位
-                    ir_ps_data[12] = 0x22;
-                    28降温 开（开机状态）1风速
+                    ir_ps_data[11] = 0x80;
+                    ir_ps_data[12] = 0x2c;
+                    26降温 开（开机状态）自动风速 左右上下开
                 */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x05;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0x82;
-                        ir_ps_data[12] = 0x22;
+                        ir_ps_data[0] = 0xc3;
+                    ir_ps_data[1] = 0x09;
+                    ir_ps_data[2] = 0x00;
+                    ir_ps_data[3] = 0x00;
+                    ir_ps_data[4] = 0x05;
+                    ir_ps_data[5] = 0x00;
+                    ir_ps_data[6] = 0x04;
+                    ir_ps_data[7] = 0x00;
+                    ir_ps_data[8] = 0x00;
+                    ir_ps_data[9] = 0x04;
+                    ir_ps_data[10] = 0x00;
+                    ir_ps_data[11] = 0x80;
+                    ir_ps_data[12] = 0x2c;
                     }
 #endif 
                     xEventGroupSetBits(APP_event_group,APP_event_SP_flags_BIT);
@@ -861,50 +882,36 @@ void tempps_task(void *arg)
                     EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x1d;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0xaa; //BIT3显示置位
-                    ir_ps_data[12] = 0x0f;
-                    31升温。关（开机状态）静音
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x1d;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0xaa;
-                        ir_ps_data[12] = 0x0f;
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x15;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0xa8;
+ir_ps_data[12] = 0x06;
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x1d;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0x12;//BIT3显示不置位
-                    ir_ps_data[12] = 0xc7;
-                    31升温。关（开机状态）静音
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x1d;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0x12;
-                        ir_ps_data[12] = 0xc7;
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x15;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0x80;
+ir_ps_data[12] = 0x32;
                     }
 #endif 
                     xEventGroupSetBits(APP_event_group,APP_event_LP_flags_BIT);
@@ -940,50 +947,36 @@ void tempps_task(void *arg)
                     EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x03;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0xaa;//BIT3显示置位
-                    ir_ps_data[12] = 0x1f;
-                    32升温。关（开机状态）静音  
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x03;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0xaa;
-                        ir_ps_data[12] = 0x1f;
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x0d;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0xa8;
+ir_ps_data[12] = 0x16;
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x03;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0x12;//BIT3显示不置位
-                    ir_ps_data[12] = 0xd7;
-                    32升温。关（开机状态）静音
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x03;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0x12;
-                        ir_ps_data[12] = 0xd7;
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x0d;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0x00;
+ir_ps_data[12] = 0xca;
 
 
                     }
@@ -1139,10 +1132,19 @@ void tempps_task(void *arg)
                     ir_ps_data[12] = 0x1a;
                     28降温 开（开机状态）1风速
                 */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x05;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0xaa;
-                        ir_ps_data[12] = 0x1a;
+                        ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x09;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0xa8;
+ir_ps_data[12] = 0x12;
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
@@ -1163,10 +1165,19 @@ void tempps_task(void *arg)
                     ir_ps_data[12] = 0x22;
                     28降温 开（开机状态）1风速
                 */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x05;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0x82;
-                        ir_ps_data[12] = 0x22;
+                        ir_ps_data[0] = 0xc3;
+                    ir_ps_data[1] = 0x09;
+                    ir_ps_data[2] = 0x00;
+                    ir_ps_data[3] = 0x00;
+                    ir_ps_data[4] = 0x05;
+                    ir_ps_data[5] = 0x00;
+                    ir_ps_data[6] = 0x04;
+                    ir_ps_data[7] = 0x00;
+                    ir_ps_data[8] = 0x00;
+                    ir_ps_data[9] = 0x04;
+                    ir_ps_data[10] = 0x00;
+                    ir_ps_data[11] = 0x80;
+                    ir_ps_data[12] = 0x2c;
 
 
 
@@ -1206,50 +1217,36 @@ void tempps_task(void *arg)
                     EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x1d;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0xaa; //BIT3显示置位
-                    ir_ps_data[12] = 0x0f;
-                    31升温。关（开机状态）静音
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x1d;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0xaa;
-                        ir_ps_data[12] = 0x0f;
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x15;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0xa8;
+ir_ps_data[12] = 0x06;
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x1d;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0x12;//BIT3显示不置位
-                    ir_ps_data[12] = 0xc7;
-                    31升温。关（开机状态）静音
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x1d;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0x12;
-                        ir_ps_data[12] = 0xc7;
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x15;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0x80;
+ir_ps_data[12] = 0x32;
 
 
                     }
@@ -1288,50 +1285,36 @@ void tempps_task(void *arg)
                     EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x03;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0xaa;//BIT3显示置位
-                    ir_ps_data[12] = 0x1f;
-                    32升温。关（开机状态）静音  
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x03;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0xaa;
-                        ir_ps_data[12] = 0x1f;
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x0d;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0xa8;
+ir_ps_data[12] = 0x16;
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x03;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x01;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0x12;//BIT3显示不置位
-                    ir_ps_data[12] = 0xd7;
-                    32升温。关（开机状态）静音
-                */
-                        ir_ps_data[0] = 0xc3;ir_ps_data[1] = 0x03;ir_ps_data[2] = 0x00;ir_ps_data[3] = 0x00;
-                        ir_ps_data[4] = 0x06;ir_ps_data[5] = 0x01;ir_ps_data[6] = 0x04;ir_ps_data[7] = 0x00;
-                        ir_ps_data[8] = 0x00;ir_ps_data[9] = 0x04;ir_ps_data[10] = 0x00;ir_ps_data[11] = 0x12;
-                        ir_ps_data[12] = 0xd7;                        
+                ir_ps_data[0] = 0xc3;
+ir_ps_data[1] = 0x0d;
+ir_ps_data[2] = 0x00;
+ir_ps_data[3] = 0x00;
+ir_ps_data[4] = 0x05;
+ir_ps_data[5] = 0x00;
+ir_ps_data[6] = 0x04;
+ir_ps_data[7] = 0x00;
+ir_ps_data[8] = 0x00;
+ir_ps_data[9] = 0x04;
+ir_ps_data[10] = 0x00;
+ir_ps_data[11] = 0x00;
+ir_ps_data[12] = 0xca;                      
 
                     }
 #endif 
@@ -1487,7 +1470,7 @@ void tempps_task(void *arg)
 
             }
             segDisBuff[3] = SegDigRevRevCode[(hour_min & 0xFF) % 10];
-            if((uxBits & APP_event_SP_flags_BIT) == APP_event_SP_flags_BIT)
+            if((uxBits & APP_event_SP_flags_BIT) != APP_event_SP_flags_BIT)
             {
                 segDisBuff[3] |= SEG7_CODE_DP_Rev_Rev;
             }

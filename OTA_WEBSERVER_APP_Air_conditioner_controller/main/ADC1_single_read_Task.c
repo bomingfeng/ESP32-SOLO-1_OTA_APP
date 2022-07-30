@@ -32,7 +32,7 @@ void ADC1_single_read_Task(void *pvParam)
  
     while (1) {
         adc1_data = adc1_get_raw(ADC1_EXAMPLE_CHAN0);
-        if(adc1_data >= 1100)
+        if(adc1_data >= 588)
         {
             xTimerReset(Seg7Timers,portMAX_DELAY);
         }
