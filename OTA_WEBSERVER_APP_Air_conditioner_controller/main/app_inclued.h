@@ -45,8 +45,8 @@
 #include "bt_hci_common.h"
 
 
-#define Gree    
-//#define Auxgroup 
+//#define Gree    
+#define Auxgroup 
 
 #ifdef  Gree
 #include "ir_parser_rmt_YAPOF3.h"
@@ -68,8 +68,8 @@
 #define IR_PARSER_CONFIG(dev) IR_PARSER_YKR_T_091_CONFIG(dev)
 #endif
 
-//#define LYWSD03MMC    
-#define XL0801
+#define LYWSD03MMC    
+//#define XL0801
 
 #define GATTC_TAG "LYWSD03MMC"
 #define Sp 18 //温度上、下限
