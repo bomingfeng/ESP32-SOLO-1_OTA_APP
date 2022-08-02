@@ -75,7 +75,13 @@
 #define Sp 18 //温度上、下限
 #define Lp 15
 #define LLp 25
+
+#ifdef XL0801
 #define load_time 1 //多久控制空调
+#else
+#define load_time 45//多久控制空调
+#endif
+
 #define sleep_time 5  //休眠时间min
 #define time_off 500 //默认定时关空调时间MIN
 #define BLe_battery_low 1810 //2110

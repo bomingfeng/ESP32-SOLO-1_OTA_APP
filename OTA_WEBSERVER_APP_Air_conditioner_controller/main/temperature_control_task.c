@@ -267,7 +267,6 @@ void IRps_task(void *arg)
                         IR_temp = 2750; 
                         break;
                 }
-                IR_temp = 2770;///////////////////////////////////////////////////////////////////////////////////////////
                 xMessageBufferSend(IRPS_temp,&IR_temp,4,portMAX_DELAY);
                 /*
                 ir_ps_data[0] = 0x50;
@@ -318,9 +317,20 @@ void IRps_task(void *arg)
                 /*if((((ir_ps_data[2] & 0x0f) >= 6) && ((uxBits & APP_event_ds18b20_CONNECTED_flags_BIT) == APP_event_ds18b20_CONNECTED_flags_BIT)) || \
                  (((ir_ps_data[2] & 0x0f) >= 6) && ((uxBits & APP_event_BLE_CONNECTED_flags_BIT) == APP_event_BLE_CONNECTED_flags_BIT)))
                 {
-                    ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x30;ir_ps_data[2] = 0x07;ir_ps_data[3] = 0x79;
-                    ir_ps_data[4] = 0xb0;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
-                    vTaskDelay(600/portTICK_PERIOD_MS);
+                    ir_ps_data[0] = 0x50;
+                    ir_ps_data[1] = 0x30;
+                    ir_ps_data[2] = 0x00;
+                    ir_ps_data[3] = 0x79;
+                    ir_ps_data[4] = 0x40;
+                    ir_ps_data[5] = 0x00;
+                    ir_ps_data[6] = 0x00;
+                    ir_ps_data[7] = 0x11;
+                    ir_ps_data[8] = 0x00;
+                    ir_ps_data[9] = 0x00;
+                    ir_ps_data[10] = 0x00;
+                    ir_ps_data[11] = 0x00;
+                    ir_ps_data[12] = 0x00;
+                    vTaskDelay(800/portTICK_PERIOD_MS);
                     xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
                 }*/
             }

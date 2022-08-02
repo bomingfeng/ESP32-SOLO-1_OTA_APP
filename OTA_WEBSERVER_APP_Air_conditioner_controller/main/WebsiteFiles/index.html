@@ -4,18 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <title>ESP32 OTA</title>
+
+    <!-- 用于移动端显示优化的。width              设置layout viewport的宽度，为一个正整数，或字符串"width-device"
+                             initial-scale      设置页面的初始缩放值，为一个数字，可以带小数
+                             minimum-scale	    允许用户的最小缩放值，为一个数字，可以带小数
+                             maximum-scale	    允许用户的最大缩放值，为一个数字，可以带小数
+                             height	            设置layout viewport的高度，这个属性对我们并不重要，很少使用
+                             user-scalable	    是否允许用户进行缩放，值为 "no" 或 "yes", no 代表不允许，yes 代表允许 -->
     <meta name='viewport' content='width=device-width, initial-scale=1' />
+    
+    <!-- 每30秒刷新页面： -->
+    <meta http-equiv="refresh" content="30">
+
+    <!-- <script> 标签用于定义客户端脚本，比如 JavaScript。
+         <script> 元素既可包含脚本语句，也可以通过 "src" 属性指向外部脚本文件 -->
     <script src="jquery-3.4.1.min.js"></script>
 
 </head>
 
-<<body onload="getstatus()">
+<!-- onload 事件在页面载入完成后立即触发。getstatus()在下面定义 -->
+<body onload="getstatus()">
 
+    <!-- 标题标签 -->
     <h2>ESP32 Firmware Update Page</h2>
+
+    <!-- 标题标签 id选择器 -->
     <h4 id="latest_firmware"></h4>
 
+    <!-- input标签 输入类型：文件 id选择器 文件类型 jquery控件不显示 事件会在域的内容改变时发生；事件也可用于单选框与复选框改变后触发的事件。 -->
     <input type="file" id="selectedFile" accept=".bin" style="display: none;" onchange="myFunction()" />
+    
     <input type="button" value="Browse..." onclick="document.getElementById('selectedFile').click();" />
+
     <h3 id="file_info"></h3>
     <input type='submit' id="upload_button" value='Update Firmware' onclick="updateFirmware()">
 
