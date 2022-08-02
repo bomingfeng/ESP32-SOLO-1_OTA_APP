@@ -42,6 +42,7 @@
     "adc1_single_read_task.h": "c",
     "ratio": "c",
     "ir_parser_rmt_yapof3.h": "c",
-    "ir_parser_rmt_ykr_t_091.h": "c"
+    "ir_parser_rmt_ykr_t_091.h": "c",
+    "complex": "c"
   }
 }

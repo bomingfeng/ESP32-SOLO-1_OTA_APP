@@ -117,10 +117,13 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 			{
 				esp_wifi_connect();
 				s_retry_num++;
-				//printf("retry to connect to the AP.(%d / %d)\n", s_retry_num,100);
+				printf("retry to connect to the AP.(%d / %d)\n", s_retry_num,100);
 			} 
 			else
 			{
+				stop_OTA_webserver(OTA_server);
+				esp_wifi_disconnect();
+				//esp_wifi_stop();
 				//printf("connect to the AP fail\r\n");
 			}		
 			break;
@@ -182,7 +185,10 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 			break;
 		}
 		default: {
-			ESP_LOGI("WiFI", "SYSTEM_EVENT_ OTHER\r\n");
+			stop_OTA_webserver(OTA_server);
+			esp_wifi_disconnect();
+			//esp_wifi_stop();
+			ESP_LOGI("WiFI", "SYSTEM_EVENT_OTHER\r\n");
 			break;
 		}	
     }
@@ -406,7 +412,23 @@ void print_sta_info(void *pvParam)
 void wifi_ap_sta(void *pvParam)
 {
 	EventBits_t staBits;
-	
+	for(;;)
+	{
+		vTaskDelay(400000/portTICK_PERIOD_MS);
+		staBits = xEventGroupGetBits(APP_event_group);
+		if((staBits & APP_event_WIFI_STA_CONNECTED_BIT) != APP_event_WIFI_STA_CONNECTED_BIT)
+		{		
+			//ESP_ERROR_CHECK(esp_wifi_start());
+			//ESP_LOGI("WiFi", "Station Set to SSID:%s Pass:%s\r\n", CONFIG_STATION_SSID, CONFIG_STATION_PASSPHRASE);
+			//esp_wifi_stop();
+			esp_wifi_connect();
+			printf("Connectiing To SSID:%s : Pass:%s\r\n", CONFIG_STATION_SSID, CONFIG_STATION_PASSPHRASE);
+		}
+		
+		//	stop_OTA_webserver(OTA_server);
+		
+	}
+/*	
 	if((sleep_keep & sleep_keep_WIFI_AP_OR_STA_BIT) == sleep_keep_WIFI_AP_OR_STA_BIT)
 	{
 		staBits = xEventGroupWaitBits(APP_event_group, \
@@ -471,4 +493,5 @@ void wifi_ap_sta(void *pvParam)
 		}
 	}
 	vTaskDelete(NULL);
+	*/
 }

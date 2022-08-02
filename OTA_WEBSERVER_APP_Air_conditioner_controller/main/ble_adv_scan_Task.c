@@ -326,7 +326,10 @@ void hci_evt_process(void *pvParameters)
                             }
                             else
                             {
-                                xTimerReset(Read_ble_xTimer,portMAX_DELAY); 
+                                if(xTimerIsTimerActive(Read_ble_xTimer) == pdFALSE)
+                                {
+                                    xTimerReset(Read_ble_xTimer,portMAX_DELAY); 
+                                }
                             }
                         }
                     }
