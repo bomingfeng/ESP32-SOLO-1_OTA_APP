@@ -143,7 +143,7 @@ esp_err_t OTA_index_html_handler(httpd_req_t *req)
 
 	ESP_LOGI("OTA", "index.html Requested");
 
-	// Clear this every time page is requested
+	// Clear this every time page is requested 每次请求页面时清除此内容
 	flash_status = 0;
 	
 	httpd_resp_set_type(req, "text/html");
@@ -152,6 +152,7 @@ esp_err_t OTA_index_html_handler(httpd_req_t *req)
 
 	return ESP_OK;
 }
+
 /* Send .ICO (icon) file  */
 esp_err_t OTA_favicon_ico_handler(httpd_req_t *req)
 {
@@ -163,6 +164,7 @@ esp_err_t OTA_favicon_ico_handler(httpd_req_t *req)
 
 	return ESP_OK;
 }
+
 /* jquery GET handler */
 esp_err_t jquery_3_4_1_min_js_handler(httpd_req_t *req)
 {
@@ -207,7 +209,7 @@ esp_err_t OTA_update_post_handler(httpd_req_t *req)
 	bool is_req_body_started = false;
 	const esp_partition_t *update_partition = esp_ota_get_next_update_partition(NULL);
 
-	// Unsucessful Flashing
+	// Unsucessful Flashing 
 	flash_status = -1;
 	
 	do
@@ -227,8 +229,8 @@ esp_err_t OTA_update_post_handler(httpd_req_t *req)
 
 		//printf("OTA RX: %d of %d\r", content_received, content_length);
 		
-	    // Is this the first data we are receiving
-		// If so, it will have the information in the header we need. 
+	    // Is this the first data we are receiving 这是我们收到的第一个数据吗？
+		// If so, it will have the information in the header we need. 如果是这样，它将在我们需要的标头中包含信息
 		if (!is_req_body_started)
 		{
 			is_req_body_started = true;
@@ -340,6 +342,44 @@ httpd_uri_t OTA_status = {
 };
 
 
+esp_err_t HtmlToMcu_handler(httpd_req_t *req)
+{
+	char ota_buff[1024];
+	int content_length = req->content_len;
+	int content_received = 0;
+	int recv_len;
+	uint8_t i;
+	do
+	{
+		/* Read the data for the request */
+		if ((recv_len = httpd_req_recv(req, ota_buff, MIN(content_length, sizeof(ota_buff)))) < 0) 
+		{
+			if (recv_len == HTTPD_SOCK_ERR_TIMEOUT) 
+			{
+				printf("Socket Timeout");
+				/* Retry receiving if timeout occurred */
+				continue;
+			}
+			printf("OTA Other Error %d", recv_len);
+			return ESP_FAIL;
+		}
+		else
+		{
+			content_received += recv_len;
+			for(i = 0;i < content_length;i++)
+				printf("ota_buff:%x;\r\n",ota_buff[i]);
+		}
+	} while (recv_len > 0 && content_received < content_length);
+	return ESP_OK;
+}
+
+httpd_uri_t HtmlToMcu = {
+	.uri = "/HtmlToMcu",
+	.method = HTTP_POST,
+	.handler = HtmlToMcu_handler,
+	.user_ctx = NULL
+};
+
 httpd_handle_t start_OTA_webserver(void)
 {
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -363,6 +403,7 @@ httpd_handle_t start_OTA_webserver(void)
 		httpd_register_uri_handler(OTA_server, &OTA_favicon_ico);
 		httpd_register_uri_handler(OTA_server, &OTA_jquery_3_4_1_min_js);
 		httpd_register_uri_handler(OTA_server, &OTA_update);
+		httpd_register_uri_handler(OTA_server, &HtmlToMcu);
 		httpd_register_uri_handler(OTA_server, &OTA_status);
 		return OTA_server;
 	}

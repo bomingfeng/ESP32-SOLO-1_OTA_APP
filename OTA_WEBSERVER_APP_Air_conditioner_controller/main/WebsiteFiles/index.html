@@ -12,9 +12,9 @@
                              height	            设置layout viewport的高度，这个属性对我们并不重要，很少使用
                              user-scalable	    是否允许用户进行缩放，值为 "no" 或 "yes", no 代表不允许，yes 代表允许 -->
     <meta name='viewport' content='width=device-width, initial-scale=1' />
-    
+
     <!-- 每30秒刷新页面： -->
-    <meta http-equiv="refresh" content="30">
+    <meta http-equiv="refresh" content="120">
 
     <!-- <script> 标签用于定义客户端脚本，比如 JavaScript。
          <script> 元素既可包含脚本语句，也可以通过 "src" 属性指向外部脚本文件 -->
@@ -37,7 +37,11 @@
     <input type="button" value="Browse..." onclick="document.getElementById('selectedFile').click();" />
 
     <h4 id="file_info"></h4>
+
     <input type='submit' id="upload_button" value='Update Firmware' onclick="updateFirmware()">
+
+    <input type='submit' value='HtmlToMcusu' onclick="HtmlToMcu()">
+    <input type="button" value="HtmlToMcu" onclick="HtmlToMcu()" />
 
     <h4 id="status"></h4>
     <h4 id="status1"></h4>
@@ -149,8 +153,15 @@
                 document.getElementById("status").innerHTML = "Upgrade Complete, Rebooting in " + seconds + " Seconds.";
             }
         }
+
+        function HtmlToMcu() {
+            var xhr = new XMLHttpRequest();
+            var requestURL = "/HtmlToMcu";
+            xhr.open('POST', requestURL, true);
+            xhr.send("HtmlToMcu");
+        }    
     </script>
-    
+
     <hr color="red"/>
 
     <div data-role="page">
