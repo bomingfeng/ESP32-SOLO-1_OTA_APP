@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="zh-cmn-Hans">
 
 <head>
     <meta charset="UTF-8">
@@ -36,7 +36,7 @@
     
     <input type="button" value="Browse..." onclick="document.getElementById('selectedFile').click();" />
 
-    <h3 id="file_info"></h3>
+    <h4 id="file_info"></h4>
     <input type='submit' id="upload_button" value='Update Firmware' onclick="updateFirmware()">
 
     <h4 id="status"></h4>
@@ -49,8 +49,7 @@
         function myFunction() {
             var x = document.getElementById("selectedFile");
             var file = x.files[0];
-
-            document.getElementById("file_info").innerHTML = "<h4>File: " + file.name + "<br>" + "Size: " + file.size + " bytes</h4>";
+            document.getElementById("file_info").innerHTML = "File: " + file.name + "<br>" + "Size: " + file.size + " bytes" + "<br>" + file.lastModifiedDate;
         }
 
         function updateFirmware() {
@@ -151,6 +150,54 @@
             }
         }
     </script>
+
+
+    <div data-role="page">
+    
+        <div data-role="header">
+            <h1>WiFi configuration page</h1>
+        </div><!-- /header -->
+        
+        <div role="main" class="ui-content">
+            <h3>WiFi credentials</h2>
+            <div>
+                <label for="ssid_text">SSID</label>
+                <input type="text" name="ssid_text" id="ssid_text" required>
+                <label for="pass_text">Password</label>
+                <input type="password" name="pass_text" id="pass_text" minlength="8" required>
+                <input type="button" id="set_config" value="SET">
+            </div>
+        </div>
+    </div><!-- /content -->
+
+    <script>
+        $(document).ready(function() {
+            $("#set_config").click(function() {
+                var data = {};
+                console.log('ClickFunction');	
+                if(ssid_text.value != '')
+                {
+                    var data = {'ssid':ssid_text.value,'pass':pass_text.value};
+                    $.ajax({
+                    url: 'setConfig',
+                    type: 'POST',
+                    contentType:'application/json',
+                    data: JSON.stringify(data),
+                    dataType:'json'
+                    });
+                } 
+                else 
+                {
+                    var errorText = ''
+                    if(ssid_text.value == '') {
+                        errorText = 'Missing SSID\n';
+                    }
+                    alert(errorText);
+                }
+            });
+        });
+        </script>
+        
     </body>
 
 </html>
