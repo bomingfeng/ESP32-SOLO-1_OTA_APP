@@ -53,7 +53,7 @@
         function myFunction() {
             var x = document.getElementById("selectedFile");
             var file = x.files[0];
-            document.getElementById("file_info").innerHTML = "File: " + file.name + "<br>" + "Size: " + file.size + " bytes" + "<br>" + file.lastModifiedDate;
+            document.getElementById("file_info").innerHTML = "File: " + file.name + "<br>" + "Size: " + file.size + " bytes" + "<br>" + "Latest Modified Date:" + file.lastModifiedDate;
            
             var xhr = new XMLHttpRequest();
             var requestURL = "/status";
