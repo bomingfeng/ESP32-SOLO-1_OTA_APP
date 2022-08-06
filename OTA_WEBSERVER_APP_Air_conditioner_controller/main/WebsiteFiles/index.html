@@ -106,10 +106,31 @@
             xhr.open('POST', requestURL, true);
 
             //Send the proper header information along with the request
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");//设置为表单方式提交
 
-            xhr.onreadystatechange = function() { // Call a function when the state changes.
-                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            xhr.onreadystatechange = function() { // Call a function when the state changes.在状态更改时调用函数。//绑定响应状态事件监听函数
+                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) //监听readyState状态,监听HTTP状态码
+                {
+                    <!-- readyState属性值 
+                        返回值 说明
+                        0	  未初始化。表示对象已经建立，但是尚未初始化，尚未调用 open() 方法
+                        1	  初始化。表示对象已经建立，尚未调用 send() 方法
+                        2	  发送数据。表示 send() 方法已经调用，但是当前的状态及 HTTP 头未知
+                        3	  数据传送中。已经接收部分数据，因为响应及 HTTP 头不安全，这时通过 responseBody 和 responseText 获取部分数据会出现错误
+                        4	  完成。数据接收完毕，此时可以通过 responseBody 和 responseText 获取完整的响应数据  
+                        
+                        readyState	存有 XMLHttpRequest 的状态。从 0 到 4 发生变化。
+                                    0: 请求未初始化
+                                    1: 服务器连接已建立
+                                    2: 请求已接收
+                                    3: 请求处理中
+                                    4: 请求已完成，且响应已就绪
+                        
+                        status	200: "OK"
+                                404: 未找到页面
+                        -->
+                    
                     var response = JSON.parse(xhr.responseText);
 
                     document.getElementById("latest_firmware").innerHTML = "Latest Firmware:  " + response.compile_date + " - " + response.compile_time
