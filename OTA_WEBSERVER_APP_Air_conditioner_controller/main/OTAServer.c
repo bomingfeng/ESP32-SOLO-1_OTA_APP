@@ -183,7 +183,7 @@ esp_err_t OTA_update_status_handler(httpd_req_t *req)
 	char ledJSON[100];
 	
 	ESP_LOGI("OTA", "Status Requested");
-	
+
 	sprintf(ledJSON, "{\"status\":%d,\"compile_time\":\"%s\",\"compile_date\":\"%s\"}", flash_status, __TIME__, __DATE__);
 	httpd_resp_set_type(req, "application/json");
 	httpd_resp_send(req, ledJSON, strlen(ledJSON));
@@ -380,6 +380,45 @@ httpd_uri_t HtmlToMcu = {
 	.user_ctx = NULL
 };
 
+#define sse_len 2
+uint32_t sse_id = 0x0,sse_data[2] = {0};
+esp_err_t McuToHtml_handler(httpd_req_t *req)
+{
+
+	httpd_resp_set_type(req, "text/event-stream;charset=utf-8");
+
+	 /* \n是一个字符。buf_len长度要包函\n */
+	//httpd_resp_send(req, "id:1\ndata:test\n\n",16);//以data: 开头会默认触发页面中message事件，以\n\n结尾结束一次推送。
+	
+	//httpd_resp_send(req, "id:1\nevent:foo\ndata:test\n\n",26);//'event:' + 事件名 + '\n'，这样就会触发页面中的foo事件而不是message事件，以\n\n结尾结束一次推送。
+
+
+	/*转换*/
+	char ledJSON[50];
+	if(sse_id == 1){
+		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
+	}
+	/*else if(sse_id == 2){
+		
+	}*/
+	else{
+		sse_id = 0;
+		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
+		
+	}
+	
+	httpd_resp_send(req, ledJSON, strlen(ledJSON));
+	sse_id++;
+
+	return ESP_OK;
+}
+httpd_uri_t McuToHtml = {
+	.uri = "/McuToHtml",
+	.method = HTTP_GET,
+	.handler = McuToHtml_handler,
+	.user_ctx = NULL
+};
+
 httpd_handle_t start_OTA_webserver(void)
 {
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -404,6 +443,7 @@ httpd_handle_t start_OTA_webserver(void)
 		httpd_register_uri_handler(OTA_server, &OTA_jquery_3_4_1_min_js);
 		httpd_register_uri_handler(OTA_server, &OTA_update);
 		httpd_register_uri_handler(OTA_server, &HtmlToMcu);
+		httpd_register_uri_handler(OTA_server, &McuToHtml);
 		httpd_register_uri_handler(OTA_server, &OTA_status);
 		return OTA_server;
 	}

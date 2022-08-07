@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="zh-cmn-Hans">
 
 <head>
@@ -14,7 +14,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1' />
 
     <!-- 每30秒刷新页面： -->
-    <meta http-equiv="refresh" content="120">
+    <!-- <meta http-equiv="refresh" content="120"> -->
 
     <!-- <script> 标签用于定义客户端脚本，比如 JavaScript。
          <script> 元素既可包含脚本语句，也可以通过 "src" 属性指向外部脚本文件 -->
@@ -28,6 +28,8 @@
     <!-- 标题标签 -->
     <h2>ESP32 Firmware Update Page</h2>
 
+    <h4 id="data_time"></h4>
+
     <!-- 标题标签 id选择器 -->
     <h4 id="latest_firmware"></h4>
 
@@ -37,7 +39,7 @@
     <input type="button" value="Browse..." onclick="document.getElementById('selectedFile').click();" />
 
     <h4 id="file_info"></h4>
-
+    <h4 id="test"></h4>
     <input type='submit' id="upload_button" value='Update Firmware' onclick="updateFirmware()">
 
     <input type='submit' value='HtmlToMcusu' onclick="HtmlToMcu()">
@@ -49,28 +51,77 @@
     <script type="text/javascript">
         var seconds = 10;
         var theTimer;
+        var date;
+        var date1;
+        var degC_ble;
+        var humidity_ble;
+
+        var es = new EventSource("/McuToHtml");
+
+        //当连接上之后就会立即触发；
+        /*es.addEventListener('open',function(){
+            test++;
+            console.log("open" + test);
+        },false);
+        */
+        //服务器向客户端发送数据的默认事件，通过e.data可以获取到数据；
+        es.addEventListener('message',function(e){
+            console.log("message:" + e.data);
+            console.log("id:" + e.lastEventId);
+
+            if(e.lastEventId == 1){
+                degC_ble = e.data;
+                degC_ble = (degC_ble  >> 16) / 100;
+                degC_ble = degC_ble.toFixed(2);
+                humidity_ble = e.data;
+                humidity_ble = (humidity_ble & 0xFFFF) / 100;
+                humidity_ble = humidity_ble.toFixed(2);
+            }
+            /*else if(e.lastEventId == 2){
+
+            }*/
+            else{
+                date1 = e.data;
+            }
+
+            date = new Date(date1 * 1000);  // 参数需要毫秒数，所以这里将秒数乘于 1000
+            //((e.data & 0xFFFFFFFF00000000) >> 16)
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            D = date.getDate();
+            h = date.getHours() + ':';
+            m = (date.getMinutes()  < 10 ?  '0'+(date.getMinutes()) : date.getMinutes());
+            s = ':' + (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
+
+            document.getElementById("data_time").innerHTML = "日期:" + Y + M + D + "<br>" + "时间:" + h + m;
+            document.getElementById("data_time").innerHTML += "<br>温度:" + degC_ble + "<br>" + "湿度:" + humidity_ble + "&#37;";
+        },false);
+
+        //自定义事件（SSE支持自定义事件）；
+        es.addEventListener('foo',function(e){
+            console.log("foo:" + e.data);
+        },false);
+
+        //当链接发生错误时触发。
+        /*es.addEventListener('error',function(){
+        console.info('error');
+        },false);*/
+        
 
         function myFunction() {
+
             var x = document.getElementById("selectedFile");
             var file = x.files[0];
-            document.getElementById("file_info").innerHTML = "File: " + file.name + "<br>" + "Size: " + file.size + " bytes" + "<br>" + "Latest Modified Date:" + file.lastModifiedDate;
-           
-            var xhr = new XMLHttpRequest();
-            var requestURL = "/status";
-            xhr.open('POST', requestURL, true);
 
-            //Send the proper header information along with the request
-            
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");//设置为表单方式提交
+            date = new Date(file.lastModified);  // 
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            D = date.getDate();
+            h = date.getHours() + ':';
+            m = (date.getMinutes()  < 10 ?  '0'+(date.getMinutes()) : date.getMinutes()) + ':';
+            s = (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
 
-            xhr.onreadystatechange = function() { // Call a function when the state changes.在状态更改时调用函数。//绑定响应状态事件监听函数
-                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) //监听readyState状态,监听HTTP状态码
-                {
-                    var response = JSON.parse(xhr.responseText);
-
-                    document.getElementById("file_info").innerHTML += "<br>" + "Latest Firmware:  " + response.compile_date + " - " + response.compile_time;
-                }
-            
+            document.getElementById("file_info").innerHTML = "File: " + file.name + "<br>" + "Size: " + file.size + "bytes" + "<br>" + "Latest Modified Date:" + Y + M + D + "&emsp;" + h + m + s;
         }
 
         function updateFirmware() {
@@ -114,7 +165,7 @@
                 window.alert('Select A File First')
             }
         }
-
+        
         // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send
         function getstatus() {
 
@@ -127,15 +178,16 @@
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");//设置为表单方式提交
 
             xhr.onreadystatechange = function() { // Call a function when the state changes.在状态更改时调用函数。//绑定响应状态事件监听函数
-                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) //监听readyState状态,监听HTTP状态码
+                if ((this.readyState == XMLHttpRequest.DONE) && (this.status == 200)) //监听readyState状态,监听HTTP状态码
                 {
-                    <!-- readyState属性值 
+                    
+                    /* readyState属性值 
                         返回值 说明
                         0	  未初始化。表示对象已经建立，但是尚未初始化，尚未调用 open() 方法
                         1	  初始化。表示对象已经建立，尚未调用 send() 方法
                         2	  发送数据。表示 send() 方法已经调用，但是当前的状态及 HTTP 头未知
                         3	  数据传送中。已经接收部分数据，因为响应及 HTTP 头不安全，这时通过 responseBody 和 responseText 获取部分数据会出现错误
-                        4	  完成。数据接收完毕，此时可以通过 responseBody 和 responseText 获取完整的响应数据  
+                        4	  完成。= XMLHttpRequest.DONE 数据接收完毕，此时可以通过 responseBody 和 responseText 获取完整的响应数据  
                         
                         readyState	存有 XMLHttpRequest 的状态。从 0 到 4 发生变化。
                                     0: 请求未初始化
@@ -146,7 +198,7 @@
                         
                         status	200: "OK"
                                 404: 未找到页面
-                        -->
+                    */
                     
                     var response = JSON.parse(xhr.responseText);
 
@@ -174,10 +226,14 @@
                     }
                 }
             }
+            
 
             console.log("Requestiing Upgrade Status");
 
-            xhr.send('status');
+            xhr.send();
+
+
+                    
         }
 
         function startMyTimer() {
@@ -198,6 +254,8 @@
             xhr.open('POST', requestURL, true);
             xhr.send("HtmlToMcu");
         }    
+
+
     </script>
 
     <hr color="red"/>

@@ -12,6 +12,8 @@
 #define INET6_ADDRSTRLEN 48
 #endif
 
+extern uint32_t sse_data[2];
+
 MessageBufferHandle_t time_hour_min;
 
 static void obtain_time(void);
@@ -55,6 +57,9 @@ void sntp_task(void *pvParam)
     while(1)
     {
         time(&now);
+
+        sse_data[0] = now; 
+
         localtime_r(&now, &timeinfo);
         hour_min = (timeinfo.tm_hour << 8) | timeinfo.tm_min;
         xMessageBufferSend(time_hour_min,&hour_min,2,portMAX_DELAY);

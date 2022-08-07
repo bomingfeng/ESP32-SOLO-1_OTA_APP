@@ -26,7 +26,7 @@ uint8_t con = 0;
 
 
 
-
+extern uint32_t sse_data[2];
 extern char * tcprx_buffer;
 extern MessageBufferHandle_t tcp_send_data;
 // LSB <--------------------------------------------------------------------------------> MSB 
@@ -387,7 +387,10 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                                             &Voltage_ble,  \
                                             4,portMAX_DELAY);    
                     xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);   
-                    xTimerStop(Read_ble_xTimer,portMAX_DELAY);                                                                                    
+                    xTimerStop(Read_ble_xTimer,portMAX_DELAY); 
+
+                    sse_data[1] = (degC_ble << 16) | humidity_ble; 
+
                     degC_ble = 0;
                     humidity_ble = 0;
                     Voltage_ble = 0;

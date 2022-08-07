@@ -34,6 +34,8 @@ uint32_t humidity_ble;
 uint32_t Voltage_ble;
 uint8_t num = 0;
 
+extern uint32_t sse_data[2];
+
 /*
  * @brief: BT controller callback function, used to notify the upper layer that
  *         controller is ready to receive command
@@ -320,6 +322,9 @@ void hci_evt_process(void *pvParameters)
                                                             4,portMAX_DELAY);   
                                     xTimerStop(Read_ble_xTimer,portMAX_DELAY);                        
                                     xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+
+                                    sse_data[1] = (degC_ble << 16) | humidity_ble;
+
                                     printf("degC_ble:%d( /100);humidity_ble:%d( /100);Voltage_ble:%dmv. \r\n",degC_ble,humidity_ble,Voltage_ble);
                                     Voltage_ble = 0;degC_ble = 0;humidity_ble = 0;num = 0;
                                 }
