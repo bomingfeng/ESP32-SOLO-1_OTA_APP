@@ -390,7 +390,7 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                     xTimerStop(Read_ble_xTimer,portMAX_DELAY); 
 
                     sse_data[1] = (degC_ble << 16) | humidity_ble; 
-                    sse_data[5] = Voltage_ble;
+                    sse_data[5] = Voltage_ble | 0x80000000;
                     degC_ble = 0;
                     humidity_ble = 0;
                     Voltage_ble = 0;
@@ -438,6 +438,8 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
         get_server = false;
         ESP_LOGI(GATTC_TAG, "ESP_GATTC_DISCONNECT_EVT, reason = %d", p_data->disconnect.reason);
         xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+        sse_data[1] = 0; 
+        sse_data[5] = 0;
         break;
     default:
         break;
@@ -559,6 +561,8 @@ void Read_ble_xTimerCallback(TimerHandle_t xTimer)
 {
     xTimerStop(Read_ble_xTimer,portMAX_DELAY);
     xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+    sse_data[1] = 0; 
+    sse_data[5] = 0;
 }
 
 void ble_init(void * arg)

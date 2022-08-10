@@ -916,11 +916,12 @@ void ds18x20_task(void *arg)
                 temp_c = 0;
                 if(deg == 0){
                     xEventGroupClearBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
+                    sse_data[3] = 0;
                 }
                 else{
                     xMessageBufferSend(ds18b20degC,&deg,4,portMAX_DELAY);
                     xEventGroupSetBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
-                    sse_data[3] = deg;
+                    sse_data[3] = deg | 0x80000000;
                     deg = 0;
                 }
             }
@@ -929,12 +930,13 @@ void ds18x20_task(void *arg)
         degC = degC/18;
         if(degC == 0){
                 xEventGroupClearBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
+                sse_data[3] = 0;
             }
             else{
                 xEventGroupSetBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
                 //printf("DS18B20 Sensor reportsAVG %d deg C\n",degC);
                 xMessageBufferSend(ds18b20degC,&degC,4,portMAX_DELAY);
-                sse_data[3] = degC;
+                sse_data[3] = degC | 0x80000000;
                 degC = 0;
             }
     }

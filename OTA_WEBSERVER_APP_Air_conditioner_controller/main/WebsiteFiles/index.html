@@ -235,8 +235,6 @@
             }
             else if(e.lastEventId == 3){
                 degC_18b20 = e.data;
-                degC_18b20 = degC_18b20 / 100;
-                degC_18b20 = degC_18b20.toFixed(2);
             }
             else if(e.lastEventId == 4){
                 AC_run_status = e.data;
@@ -258,10 +256,27 @@
             s = ':' + (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
 
             document.getElementById("data_time").innerHTML = "日期时间:" + Y + M + D + "&emsp;" + h + m;
-            document.getElementById("data_time").innerHTML += "<br>蓝牙表温度:" + degC_ble + "&emsp;湿度:" + humidity_ble + "&#37;&emsp;电压:" + Voltage_ble + "mV";
 
+            if(Voltage_ble & 0x80000000){
+                var Voltage_ble1 = Voltage_ble & 0x7FFFFFFF;
+                document.getElementById("data_time").innerHTML += "<br><span style='background:green;'>蓝牙表</span>温度:" + degC_ble + "&emsp;湿度:" + humidity_ble + "&#37;&emsp;电压:" + Voltage_ble1 + "mV";
+            }
+            else{
+                document.getElementById("data_time").innerHTML += "<br><span style='background:red;'>蓝牙表</span>";
+            }
+            
             document.getElementById("data_time").innerHTML += "<br>ADC亮度值:" + adc_data;
-            document.getElementById("data_time").innerHTML += "<br>DS18B20温度:" + degC_18b20;
+
+            if(degC_18b20 & 0x80000000){
+                var degC_18b201 = degC_18b20 & 0x7FFFFFFF; 
+                degC_18b201 = degC_18b201 / 100;
+                degC_18b201 = degC_18b201.toFixed(2);//"<span style='background:green;'>1级(LP))升温中</span>"
+                document.getElementById("data_time").innerHTML += "<br>DS18B20温度:<span style='background:green;'>" + degC_18b201 + "</span>";
+            }
+            else{
+                document.getElementById("data_time").innerHTML += "<br><span style='background:red;'>DS18B20温度:</span>";
+            }
+
             if(AC_run_status & 0x01){
                 document.getElementById("data_time").innerHTML += "<br>空调状态:"  + "<span style='background:green;'>开机</span>&emsp;";
             }

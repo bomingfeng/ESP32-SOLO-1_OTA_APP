@@ -324,7 +324,7 @@ void hci_evt_process(void *pvParameters)
                                     xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
 
                                     sse_data[1] = (degC_ble << 16) | humidity_ble;
-                                    sse_data[5] = Voltage_ble;
+                                    sse_data[5] = Voltage_ble | 0x80000000;
 
                                     printf("degC_ble:%d( /100);humidity_ble:%d( /100);Voltage_ble:%dmv. \r\n",degC_ble,humidity_ble,Voltage_ble);
                                     Voltage_ble = 0;degC_ble = 0;humidity_ble = 0;num = 0;
@@ -368,6 +368,8 @@ void Read_ble_xTimerCallback(TimerHandle_t xTimer)
 {
     xTimerStop(Read_ble_xTimer,portMAX_DELAY);
     xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+    sse_data[1] = 0;
+    sse_data[5] = 0;
 }
 
 void ble_adv_scan_Task(void * arg)
