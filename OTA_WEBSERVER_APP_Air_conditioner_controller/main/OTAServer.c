@@ -406,6 +406,9 @@ esp_err_t McuToHtml_handler(httpd_req_t *req)
 	else if(sse_id == 4){
 		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
 	}
+	else if(sse_id == 5){
+		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
+	}
 	else{
 		sse_id = 0;
 		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);

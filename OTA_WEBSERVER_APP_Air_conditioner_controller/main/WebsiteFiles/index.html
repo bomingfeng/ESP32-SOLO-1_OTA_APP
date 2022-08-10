@@ -63,6 +63,7 @@
         var adc_data;
         var degC_18b20;
         var AC_run_status;
+        var Voltage_ble;
 
         
         
@@ -240,6 +241,9 @@
             else if(e.lastEventId == 4){
                 AC_run_status = e.data;
             }
+            else if(e.lastEventId == 5){
+                Voltage_ble = e.data;
+            }
             else{
                 date1 = e.data;
             }
@@ -254,7 +258,8 @@
             s = ':' + (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
 
             document.getElementById("data_time").innerHTML = "日期时间:" + Y + M + D + "&emsp;" + h + m;
-            document.getElementById("data_time").innerHTML += "<br>温度:" + degC_ble + "<br>" + "湿度:" + humidity_ble + "&#37;";
+            document.getElementById("data_time").innerHTML += "<br>蓝牙表温度:" + degC_ble + "&emsp;湿度:" + humidity_ble + "&#37;&emsp;电压:" + Voltage_ble + "mV";
+
             document.getElementById("data_time").innerHTML += "<br>ADC亮度值:" + adc_data;
             document.getElementById("data_time").innerHTML += "<br>DS18B20温度:" + degC_18b20;
             if(AC_run_status & 0x01){

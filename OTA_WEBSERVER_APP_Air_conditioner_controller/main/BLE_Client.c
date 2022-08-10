@@ -390,7 +390,7 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
                     xTimerStop(Read_ble_xTimer,portMAX_DELAY); 
 
                     sse_data[1] = (degC_ble << 16) | humidity_ble; 
-
+                    sse_data[5] = Voltage_ble;
                     degC_ble = 0;
                     humidity_ble = 0;
                     Voltage_ble = 0;
