@@ -16,6 +16,8 @@ extern int32_t BLe_battery;
 extern nvs_handle_t BLe_battery_handle;
 extern ledc_channel_config_t ledc_channel[2];
 
+extern uint32_t sse_data[sse_len];
+
 MessageBufferHandle_t IRPS_temp;
 
 TimerHandle_t xTimers0,xTimers1,xTimers2,io_sleep_timers,time_sleep_timers;
@@ -1247,8 +1249,8 @@ ir_ps_data[12] = 0xca;
                 segDisBuff[2] |= SEG7_CODE_DP;  
 
             }
-            segDisBuff[3] = SegDigRevRevCode[(hour_min & 0xFF) % 10];
-            if((uxBits & APP_event_SP_flags_BIT) != APP_event_SP_flags_BIT)
+            segDisBuff[3] = SegDigRevRevCode[(hour_min & 0xFF) % 10];//BLe_battery <= BLe_battery_low
+            if((uxBits & (APP_event_SP_flags_BIT | APP_event_run_BIT)) == (APP_event_SP_flags_BIT | APP_event_run_BIT))
             {
                 segDisBuff[3] |= SEG7_CODE_DP_Rev_Rev;
             }
@@ -1257,6 +1259,35 @@ ir_ps_data[12] = 0xca;
         {
             segDisBuff[0] = SEG7_CODE_NULL;
         }
+        if((BLe_battery <= BLe_battery_low) || ((uxBits & APP_event_BLE_CONNECTED_flags_BIT) != APP_event_BLE_CONNECTED_flags_BIT))
+        {
+            segDisBuff[0] |= SEG7_CODE_DP;
+        }
         dec_time++;
+
+        if((uxBits & APP_event_run_BIT) == APP_event_run_BIT){
+            sse_data[4] |= BIT0;
+        }
+        else{
+            sse_data[4] &= ~BIT0;
+        }
+        if((uxBits & (APP_event_run_BIT | APP_event_SP_flags_BIT)) == (APP_event_run_BIT | APP_event_SP_flags_BIT)){
+            sse_data[4] |= BIT1;
+        }
+        else{
+            sse_data[4] &= ~BIT1;
+        }
+        if((uxBits & (APP_event_run_BIT | APP_event_LP_flags_BIT)) == (APP_event_run_BIT | APP_event_LP_flags_BIT)){
+            sse_data[4] |= BIT2;
+        }
+        else{
+            sse_data[4] &= ~BIT2;
+        }
+        if((uxBits & (APP_event_run_BIT | APP_event_LLP_flags_BIT)) == (APP_event_run_BIT | APP_event_LLP_flags_BIT)){
+            sse_data[4] |= BIT3;
+        }
+        else{
+            sse_data[4] &= ~BIT3;
+        }
     }
 }

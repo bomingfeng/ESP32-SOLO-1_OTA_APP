@@ -44,10 +44,44 @@ extern nvs_handle_t BLe_battery_handle;
 
 void test_test(void * arg)
 {
-   vTaskDelete(NULL);
+    uint8_t ir_ps_data[13];
+    vTaskDelay(8000 / portTICK_PERIOD_MS);
+    vTaskDelete(NULL);
     while(1)
     {
-
+        /*  ir_ps_data[0] = 0x50;
+        ir_ps_data[1] = 0x30;
+        ir_ps_data[2] = 0x0c;
+        ir_ps_data[3] = 0x51;
+        ir_ps_data[4] = 0x80;
+        ir_ps_data[5] = 0x00;
+        ir_ps_data[6] = 0x00;
+        ir_ps_data[7] = 0x11;
+        ir_ps_data[8] = 0x00;
+        ir_ps_data[9] = 0x00;
+        ir_ps_data[10] = 0x00;
+        ir_ps_data[11] = 0x00;
+        ir_ps_data[12] = 0x00;
+        格力空调关机开灯*/
+        ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x30;ir_ps_data[2] = 0x0c;ir_ps_data[3] = 0x51;
+        ir_ps_data[4] = 0x80;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
+        xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
+        vTaskDelay(8000 / portTICK_PERIOD_MS);
+        ir_ps_data[0] = 0x50;
+        ir_ps_data[1] = 0x00;
+        ir_ps_data[2] = 0x0a;
+        ir_ps_data[3] = 0x79;
+        ir_ps_data[4] = 0xe0;
+        ir_ps_data[5] = 0x00;
+        ir_ps_data[6] = 0x00;
+        ir_ps_data[7] = 0x11;
+        ir_ps_data[8] = 0x00;
+        ir_ps_data[9] = 0x00;
+        ir_ps_data[10] = 0x00;
+        ir_ps_data[11] = 0x00;
+        ir_ps_data[12] = 0x00;
+        xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
+        vTaskDelay(8000 / portTICK_PERIOD_MS);
     }
 } 
        
@@ -101,7 +135,7 @@ void app_main()
     tempps_task_init();
     xTaskCreate(IRps_task,"IRps_task",  3072, NULL, ESP_TASK_PRIO_MIN + 2,NULL);
     xTaskCreate(tempps_task,"tempps",  3072, NULL, ESP_TASK_PRIO_MIN + 1,NULL);
-    xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    //xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
     xTaskCreate(LED_Seg7Menu_Task, "LED_Seg7Menu", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
     
 /*   释放BT mode模式，释放内存   */

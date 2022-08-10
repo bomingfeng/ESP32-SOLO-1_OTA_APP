@@ -26,7 +26,7 @@ uint8_t con = 0;
 
 
 
-extern uint32_t sse_data[2];
+extern uint32_t sse_data[sse_len];
 extern char * tcprx_buffer;
 extern MessageBufferHandle_t tcp_send_data;
 // LSB <--------------------------------------------------------------------------------> MSB 

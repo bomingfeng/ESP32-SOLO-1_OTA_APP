@@ -22,6 +22,7 @@
 #define ADC_EXAMPLE_ATTEN           ADC_ATTEN_DB_11
 
 extern TimerHandle_t Seg7Timers;
+extern uint32_t sse_data[sse_len];
 
 void ADC1_single_read_Task(void *pvParam)
 {
@@ -32,7 +33,8 @@ void ADC1_single_read_Task(void *pvParam)
  
     while (1) {
         adc1_data = adc1_get_raw(ADC1_EXAMPLE_CHAN0);
-        if(adc1_data >= 588)
+        sse_data[2] = adc1_data;
+        if(adc1_data >= 168)
         {
             xTimerReset(Seg7Timers,portMAX_DELAY);
         }

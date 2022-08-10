@@ -19,7 +19,7 @@ MessageBufferHandle_t ds18b20degC;   //换算2831 = 28.31
 
 extern MessageBufferHandle_t tcp_send_data;
 extern char * tcprx_buffer;
-
+extern uint32_t sse_data[sse_len];
 
 
 /** Type used to hold all 1-Wire device ROM addresses (64-bit) */
@@ -920,6 +920,7 @@ void ds18x20_task(void *arg)
                 else{
                     xMessageBufferSend(ds18b20degC,&deg,4,portMAX_DELAY);
                     xEventGroupSetBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
+                    sse_data[3] = deg;
                     deg = 0;
                 }
             }
@@ -933,6 +934,7 @@ void ds18x20_task(void *arg)
                 xEventGroupSetBits(APP_event_group,APP_event_ds18b20_CONNECTED_flags_BIT);
                 //printf("DS18B20 Sensor reportsAVG %d deg C\n",degC);
                 xMessageBufferSend(ds18b20degC,&degC,4,portMAX_DELAY);
+                sse_data[3] = degC;
                 degC = 0;
             }
     }

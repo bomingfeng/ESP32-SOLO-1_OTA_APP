@@ -87,6 +87,8 @@
 #define BLe_battery_low 1810 //2110
 #define BLe_battery_High 2320
 
+#define sse_len 5
+
 extern EventGroupHandle_t APP_event_group;
 #define APP_event_REBOOT_BIT BIT0   // =1 重起
 #define APP_event_deepsleep_BIT BIT1    // =1 休眠5s使能

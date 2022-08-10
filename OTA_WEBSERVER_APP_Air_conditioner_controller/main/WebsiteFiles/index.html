@@ -26,9 +26,14 @@
 <body onload="getstatus()">
 
     <!-- 标题标签 -->
-    <h2>ESP32 Firmware Update Page</h2>
+    <h3>ESP32 调试参数显示</h3>
 
     <h4 id="data_time"></h4>
+
+    <hr color="red"/>
+    
+    <!-- 标题标签 -->
+    <h3>ESP32 Firmware Update Page</h3>
 
     <!-- 标题标签 id选择器 -->
     <h4 id="latest_firmware"></h4>
@@ -55,57 +60,11 @@
         var date1;
         var degC_ble;
         var humidity_ble;
+        var adc_data;
+        var degC_18b20;
+        var AC_run_status;
 
-        var es = new EventSource("/McuToHtml");
-
-        //当连接上之后就会立即触发；
-        /*es.addEventListener('open',function(){
-            test++;
-            console.log("open" + test);
-        },false);
-        */
-        //服务器向客户端发送数据的默认事件，通过e.data可以获取到数据；
-        es.addEventListener('message',function(e){
-            console.log("message:" + e.data);
-            console.log("id:" + e.lastEventId);
-
-            if(e.lastEventId == 1){
-                degC_ble = e.data;
-                degC_ble = (degC_ble  >> 16) / 100;
-                degC_ble = degC_ble.toFixed(2);
-                humidity_ble = e.data;
-                humidity_ble = (humidity_ble & 0xFFFF) / 100;
-                humidity_ble = humidity_ble.toFixed(2);
-            }
-            /*else if(e.lastEventId == 2){
-
-            }*/
-            else{
-                date1 = e.data;
-            }
-
-            date = new Date(date1 * 1000);  // 参数需要毫秒数，所以这里将秒数乘于 1000
-            //((e.data & 0xFFFFFFFF00000000) >> 16)
-            Y = date.getFullYear() + '-';
-            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-            D = date.getDate();
-            h = date.getHours() + ':';
-            m = (date.getMinutes()  < 10 ?  '0'+(date.getMinutes()) : date.getMinutes());
-            s = ':' + (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
-
-            document.getElementById("data_time").innerHTML = "日期:" + Y + M + D + "<br>" + "时间:" + h + m;
-            document.getElementById("data_time").innerHTML += "<br>温度:" + degC_ble + "<br>" + "湿度:" + humidity_ble + "&#37;";
-        },false);
-
-        //自定义事件（SSE支持自定义事件）；
-        es.addEventListener('foo',function(e){
-            console.log("foo:" + e.data);
-        },false);
-
-        //当链接发生错误时触发。
-        /*es.addEventListener('error',function(){
-        console.info('error');
-        },false);*/
+        
         
 
         function myFunction() {
@@ -247,6 +206,84 @@
                 document.getElementById("status").innerHTML = "Upgrade Complete, Rebooting in " + seconds + " Seconds.";
             }
         }
+
+
+        var es = new EventSource("/McuToHtml");
+
+        //当连接上之后就会立即触发；
+        /*es.addEventListener('open',function(){
+            test++;
+            console.log("open" + test);
+        },false);
+        */
+        //服务器向客户端发送数据的默认事件，通过e.data可以获取到数据；
+        es.addEventListener('message',function(e){
+            console.log("message:" + e.data);
+            console.log("id:" + e.lastEventId);
+
+            if(e.lastEventId == 1){
+                degC_ble = e.data;
+                degC_ble = (degC_ble  >> 16) / 100;
+                degC_ble = degC_ble.toFixed(2);
+                humidity_ble = e.data;
+                humidity_ble = (humidity_ble & 0xFFFF) / 100;
+                humidity_ble = humidity_ble.toFixed(2);
+            }
+            else if(e.lastEventId == 2){
+                adc_data = e.data;
+            }
+            else if(e.lastEventId == 3){
+                degC_18b20 = e.data;
+                degC_18b20 = degC_18b20 / 100;
+                degC_18b20 = degC_18b20.toFixed(2);
+            }
+            else if(e.lastEventId == 4){
+                AC_run_status = e.data;
+            }
+            else{
+                date1 = e.data;
+            }
+
+            date = new Date(date1 * 1000);  // 参数需要毫秒数，所以这里将秒数乘于 1000
+            //((e.data & 0xFFFFFFFF00000000) >> 16)
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            D = date.getDate();
+            h = date.getHours() + ':';
+            m = (date.getMinutes()  < 10 ?  '0'+(date.getMinutes()) : date.getMinutes());
+            s = ':' + (date.getSeconds() < 10 ? '0'+(date.getSeconds()) : date.getSeconds());
+
+            document.getElementById("data_time").innerHTML = "日期时间:" + Y + M + D + "&emsp;" + h + m;
+            document.getElementById("data_time").innerHTML += "<br>温度:" + degC_ble + "<br>" + "湿度:" + humidity_ble + "&#37;";
+            document.getElementById("data_time").innerHTML += "<br>ADC亮度值:" + adc_data;
+            document.getElementById("data_time").innerHTML += "<br>DS18B20温度:" + degC_18b20;
+            if(AC_run_status & 0x01){
+                document.getElementById("data_time").innerHTML += "<br>空调状态:"  + "<span style='background:green;'>开机</span>&emsp;";
+            }
+            else{
+                document.getElementById("data_time").innerHTML += "<br>空调状态:"  + "<span style='background:red;'>关机</span>";
+            }
+            if(AC_run_status & 0x02){
+                document.getElementById("data_time").innerHTML += "<span style='background:green;'>制冷中</span>";
+            }
+            if(AC_run_status & 0x04){
+                document.getElementById("data_time").innerHTML += "<span style='background:green;'>1级(LP))升温中</span>&emsp;";
+            }
+            if(AC_run_status & 0x08){
+                document.getElementById("data_time").innerHTML += "<span style='background:green;'>2级(LLP)升温中</span>";
+            }
+        },false);
+
+        //自定义事件（SSE支持自定义事件）；
+        es.addEventListener('foo',function(e){
+            console.log("foo:" + e.data);
+        },false);
+
+        //当链接发生错误时触发。
+        /*es.addEventListener('error',function(){
+        console.info('error');
+        },false);*/
+
 
         function HtmlToMcu() {
             var xhr = new XMLHttpRequest();

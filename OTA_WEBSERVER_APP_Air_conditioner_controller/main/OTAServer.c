@@ -380,8 +380,7 @@ httpd_uri_t HtmlToMcu = {
 	.user_ctx = NULL
 };
 
-#define sse_len 2
-uint32_t sse_id = 0x0,sse_data[2] = {0};
+uint32_t sse_id = 0x0,sse_data[sse_len] = {0};
 esp_err_t McuToHtml_handler(httpd_req_t *req)
 {
 
@@ -398,13 +397,18 @@ esp_err_t McuToHtml_handler(httpd_req_t *req)
 	if(sse_id == 1){
 		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
 	}
-	/*else if(sse_id == 2){
-		
-	}*/
+	else if(sse_id == 2){
+		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
+	}
+	else if(sse_id == 3){
+		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
+	}
+	else if(sse_id == 4){
+		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
+	}
 	else{
 		sse_id = 0;
 		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
-		
 	}
 	
 	httpd_resp_send(req, ledJSON, strlen(ledJSON));

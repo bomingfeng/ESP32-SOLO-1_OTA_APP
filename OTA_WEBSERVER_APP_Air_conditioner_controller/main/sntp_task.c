@@ -12,7 +12,7 @@
 #define INET6_ADDRSTRLEN 48
 #endif
 
-extern uint32_t sse_data[2];
+extern uint32_t sse_data[sse_len];
 
 MessageBufferHandle_t time_hour_min;
 

@@ -34,7 +34,7 @@ uint32_t humidity_ble;
 uint32_t Voltage_ble;
 uint8_t num = 0;
 
-extern uint32_t sse_data[2];
+extern uint32_t sse_data[sse_len];
 
 /*
  * @brief: BT controller callback function, used to notify the upper layer that
