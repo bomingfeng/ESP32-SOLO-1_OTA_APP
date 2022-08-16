@@ -11,6 +11,7 @@
 httpd_handle_t OTA_server = NULL;
 int8_t flash_status = 0;
 TimerHandle_t	xTimer_ota;
+MessageBufferHandle_t HtmlToMcuData;
 
 // Embedded Files. To add or remove make changes is component.mk file as well. 
 extern const uint8_t index_html_start[] asm("_binary_index_html_start");
@@ -344,7 +345,7 @@ httpd_uri_t OTA_status = {
 
 esp_err_t HtmlToMcu_handler(httpd_req_t *req)
 {
-	char ota_buff[1024];
+	char ota_buff[96];
 	int content_length = req->content_len;
 	int content_received = 0;
 	int recv_len;
@@ -366,8 +367,9 @@ esp_err_t HtmlToMcu_handler(httpd_req_t *req)
 		else
 		{
 			content_received += recv_len;
-			for(i = 0;i < content_length;i++)
-				printf("ota_buff:%x;\r\n",ota_buff[i]);
+			//for(i = 0;i < content_length;i++)
+//				printf("ota_buff:%s;\r\n",ota_buff);
+			xMessageBufferSend(HtmlToMcuData,&ota_buff,content_length,portMAX_DELAY);
 		}
 	} while (recv_len > 0 && content_received < content_length);
 	return ESP_OK;
@@ -393,7 +395,7 @@ esp_err_t McuToHtml_handler(httpd_req_t *req)
 
 
 	/*转换*/
-	char ledJSON[50];
+	char ledJSON[96];
 	if(sse_id == 1){
 		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
 	}
@@ -409,6 +411,9 @@ esp_err_t McuToHtml_handler(httpd_req_t *req)
 	else if(sse_id == 5){
 		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
 	}
+	else if(sse_id == 6){
+		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
+	}
 	else{
 		sse_id = 0;
 		sprintf(ledJSON, "id:%d\ndata:%d\n\n",sse_id,sse_data[sse_id]);
@@ -419,6 +424,7 @@ esp_err_t McuToHtml_handler(httpd_req_t *req)
 
 	return ESP_OK;
 }
+
 httpd_uri_t McuToHtml = {
 	.uri = "/McuToHtml",
 	.method = HTTP_GET,

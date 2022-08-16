@@ -38,50 +38,61 @@ extern rmt_channel_t example_rx_channel;
 extern rmt_channel_t example_tx_channel;
 extern MessageBufferHandle_t IRPS_temp;
 extern MessageBufferHandle_t time_hour_min;
+extern MessageBufferHandle_t HtmlToMcuData;
 
 extern int32_t BLe_battery;
 extern nvs_handle_t BLe_battery_handle;
 
 void test_test(void * arg)
 {
-    uint8_t ir_ps_data[13];
-    vTaskDelay(8000 / portTICK_PERIOD_MS);
-    vTaskDelete(NULL);
+    char data[96];
+    uint8_t i,ssidOK,datalen,ssidBit = 0,passBit = 5,ssidlen,passlen;
+
+    uint8_t ssid[32];      
+    uint8_t password[64];
+
+    //vTaskDelete(NULL);
     while(1)
     {
-        /*  ir_ps_data[0] = 0x50;
-        ir_ps_data[1] = 0x30;
-        ir_ps_data[2] = 0x0c;
-        ir_ps_data[3] = 0x51;
-        ir_ps_data[4] = 0x80;
-        ir_ps_data[5] = 0x00;
-        ir_ps_data[6] = 0x00;
-        ir_ps_data[7] = 0x11;
-        ir_ps_data[8] = 0x00;
-        ir_ps_data[9] = 0x00;
-        ir_ps_data[10] = 0x00;
-        ir_ps_data[11] = 0x00;
-        ir_ps_data[12] = 0x00;
-        格力空调关机开灯*/
-        ir_ps_data[0] = 0x50;ir_ps_data[1] = 0x30;ir_ps_data[2] = 0x0c;ir_ps_data[3] = 0x51;
-        ir_ps_data[4] = 0x80;ir_ps_data[5] = 0x00;ir_ps_data[6] = 0x00;ir_ps_data[7] = 0x11;
-        xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
-        vTaskDelay(8000 / portTICK_PERIOD_MS);
-        ir_ps_data[0] = 0x50;
-        ir_ps_data[1] = 0x00;
-        ir_ps_data[2] = 0x0a;
-        ir_ps_data[3] = 0x79;
-        ir_ps_data[4] = 0xe0;
-        ir_ps_data[5] = 0x00;
-        ir_ps_data[6] = 0x00;
-        ir_ps_data[7] = 0x11;
-        ir_ps_data[8] = 0x00;
-        ir_ps_data[9] = 0x00;
-        ir_ps_data[10] = 0x00;
-        ir_ps_data[11] = 0x00;
-        ir_ps_data[12] = 0x00;
-        xMessageBufferSend(ir_tx_data,ir_ps_data,13,portMAX_DELAY);
-        vTaskDelay(8000 / portTICK_PERIOD_MS);
+        datalen = xMessageBufferReceive(HtmlToMcuData,&data,80,portMAX_DELAY);
+        printf("datalen:%d;data:%s;\r\n",datalen,data);
+        ssidOK = 0;
+        for(i = 0;i < 80;i++){
+            if(('s' == data[i]) && ('s' == data[i+1]) && ('i' == data[i+2]) && ('d' == data[i+3]) && (':' == data[i+4])){
+                ssidBit = i;
+                ssidOK++;
+            }
+            if(('p' == data[i]) && ('a' == data[i+1]) && ('s' == data[i+2]) && ('s' == data[i+3]) && (':' == data[i+4])){
+                passBit = i;
+                ssidOK++;
+                break;
+            }
+        }
+        if(ssidOK == 2){
+            printf("ssidBit:%d;passBit:%d;\r\n",ssidBit,passBit);
+            ssidlen = passBit - (ssidBit + 5);
+            passlen = datalen - (passBit + 5);
+            printf("ssidlen:%d;passlen:%d;\r\n",ssidlen,passlen);
+            if(ssidlen > 0){
+                memset(ssid,'\0',sizeof(ssid));
+                for(i = 0;i < ssidlen;i++){
+                    ssid[i] = data[ssidBit + i + 5];
+                }
+
+                memset(password,'\0',sizeof(password));
+                for(i = 0;i < passlen;i++){
+                    password[i] = data[passBit + i + 5];
+                }
+                printf("ssid:%s;password:%s;\r\n",ssid,password);
+
+                if(strcmp(&ssid,CONFIG_STATION_SSID) == 0){
+                    printf("strcmp ssid OK\r\n");
+                }
+                if(strcmp(&password,CONFIG_STATION_PASSPHRASE) == 0){
+                    printf("strcmp password OK\r\n");
+                }
+            }   
+        }
     }
 } 
        
@@ -109,6 +120,7 @@ void app_main()
     ir_rx_data  = xMessageBufferCreate(17);
     ir_tx_data =  xMessageBufferCreate(17);
     IRPS_temp = xMessageBufferCreate(8);
+    HtmlToMcuData  = xMessageBufferCreate(100);
 
     //printf("Init GPIO & nvs_flash.....\r\n");
     app_init();
@@ -135,7 +147,7 @@ void app_main()
     tempps_task_init();
     xTaskCreate(IRps_task,"IRps_task",  3072, NULL, ESP_TASK_PRIO_MIN + 2,NULL);
     xTaskCreate(tempps_task,"tempps",  3072, NULL, ESP_TASK_PRIO_MIN + 1,NULL);
-    //xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
     xTaskCreate(LED_Seg7Menu_Task, "LED_Seg7Menu", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
     
 /*   释放BT mode模式，释放内存   */

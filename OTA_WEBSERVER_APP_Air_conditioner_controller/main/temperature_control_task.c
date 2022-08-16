@@ -1289,5 +1289,6 @@ ir_ps_data[12] = 0xca;
         else{
             sse_data[4] &= ~BIT3;
         }
+        sse_data[6] = IR_temp;
     }
 }
