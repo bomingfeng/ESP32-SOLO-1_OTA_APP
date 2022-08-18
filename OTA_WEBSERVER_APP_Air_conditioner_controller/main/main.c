@@ -39,6 +39,7 @@ extern rmt_channel_t example_tx_channel;
 extern MessageBufferHandle_t IRPS_temp;
 extern MessageBufferHandle_t time_hour_min;
 extern MessageBufferHandle_t HtmlToMcuData;
+extern TimerHandle_t time_sleep_timers;
 
 extern int32_t BLe_battery;
 extern nvs_handle_t BLe_battery_handle;
@@ -46,52 +47,100 @@ extern nvs_handle_t BLe_battery_handle;
 void test_test(void * arg)
 {
     char data[96];
-    uint8_t i,ssidOK,datalen,ssidBit = 0,passBit = 5,ssidlen,passlen;
+    uint8_t i,data_ok,data_len,first_bit = 0,second_bit = 1,first_len,second_len;
 
     uint8_t ssid[32];      
     uint8_t password[64];
+    uint32_t adc_data,ac_time;
 
     //vTaskDelete(NULL);
     while(1)
     {
-        datalen = xMessageBufferReceive(HtmlToMcuData,&data,80,portMAX_DELAY);
-        printf("datalen:%d;data:%s;\r\n",datalen,data);
-        ssidOK = 0;
+        data_len = xMessageBufferReceive(HtmlToMcuData,&data,80,portMAX_DELAY);
+        
+        printf("data_len:%d;data:%s;\r\n",data_len,data);
+        /*
+        for(i = 0;i < data_len;i++){
+            printf("data[%d] = 0x%x;",i,data[i]);
+        }
+        printf("\r\n");
+        */
+        data_ok = 0;
         for(i = 0;i < 80;i++){
             if(('s' == data[i]) && ('s' == data[i+1]) && ('i' == data[i+2]) && ('d' == data[i+3]) && (':' == data[i+4])){
-                ssidBit = i;
-                ssidOK++;
+                first_bit = i;
+                data_ok = 1;
             }
-            if(('p' == data[i]) && ('a' == data[i+1]) && ('s' == data[i+2]) && ('s' == data[i+3]) && (':' == data[i+4])){
-                passBit = i;
-                ssidOK++;
+            if((data_ok == 1) && ('p' == data[i]) && ('a' == data[i+1]) && ('s' == data[i+2]) && ('s' == data[i+3]) && (':' == data[i+4])){
+                second_bit = i;
+                data_ok = 2;
+                break;
+            }
+            if(('a' == data[i]) && ('d' == data[i+1]) && ('c' == data[i+2]) && (':' == data[i+3])){
+                first_bit = i;
+                data_ok = 3;
+                break;
+            }            
+            if(('a' == data[i]) && ('c' == data[i+1]) && ('_' == data[i+2]) && ('t' == data[i+3]) && \
+                ('i' == data[i+4]) && ('m' == data[i+5]) && ('e' == data[i+6]) && (':' == data[i+7])){
+                first_bit = i;
+                data_ok = 4;
                 break;
             }
         }
-        if(ssidOK == 2){
-            printf("ssidBit:%d;passBit:%d;\r\n",ssidBit,passBit);
-            ssidlen = passBit - (ssidBit + 5);
-            passlen = datalen - (passBit + 5);
-            printf("ssidlen:%d;passlen:%d;\r\n",ssidlen,passlen);
-            if(ssidlen > 0){
+        if(data_ok == 2){
+            //printf("first_bit:%d;second_bit:%d;\r\n",first_bit,second_bit);
+            first_len = second_bit - (first_bit + 5);
+            second_len = data_len - (second_bit + 5);
+            //printf("first_len:%d;second_len:%d;\r\n",first_len,second_len);
+            if(first_len > 0){
                 memset(ssid,'\0',sizeof(ssid));
-                for(i = 0;i < ssidlen;i++){
-                    ssid[i] = data[ssidBit + i + 5];
+                for(i = 0;i < first_len;i++){
+                    ssid[i] = data[first_bit + i + 5];
                 }
 
                 memset(password,'\0',sizeof(password));
-                for(i = 0;i < passlen;i++){
-                    password[i] = data[passBit + i + 5];
+                for(i = 0;i < second_len;i++){
+                    password[i] = data[second_bit + i + 5];
                 }
                 printf("ssid:%s;password:%s;\r\n",ssid,password);
-
+                /*
                 if(strcmp(&ssid,CONFIG_STATION_SSID) == 0){
                     printf("strcmp ssid OK\r\n");
                 }
                 if(strcmp(&password,CONFIG_STATION_PASSPHRASE) == 0){
                     printf("strcmp password OK\r\n");
                 }
+                */
             }   
+        }
+        else if(data_ok == 3){
+            first_len = data_len - (first_bit + 4);
+            //printf("first_len:%d;data_len:%d;first_bit:%d\r\n",first_len,data_len,first_bit);
+            adc_data = 0;
+            for(i = 0;i < first_len;i++){
+                if((data[first_bit + i + 4] >= '0') && (data[first_bit + i + 4] <= '9')){
+                    adc_data = 10 * adc_data + (data[first_bit + i + 4] - '0');
+                }
+            }
+            printf("adc_data ok:%d;\r\n",adc_data);
+        }
+        else if(data_ok == 4){
+            first_len = data_len - (first_bit + 4);
+            //printf("first_len:%d;data_len:%d;first_bit:%d\r\n",first_len,data_len,first_bit);
+            ac_time = 0;
+            for(i = 0;i < first_len;i++){
+                if((data[first_bit + i + 4] >= '0') && (data[first_bit + i + 4] <= '9')){
+                    ac_time = 10 * ac_time + (data[first_bit + i + 4] - '0');
+                }
+            }
+            xTimerStop(time_sleep_timers,portMAX_DELAY);
+            xTimerChangePeriod(time_sleep_timers, (60000 / portTICK_PERIOD_MS)/*min*/ * ac_time,portMAX_DELAY);
+            if((xEventGroupGetBits(APP_event_group) & APP_event_run_BIT) == APP_event_run_BIT)
+                xTimerReset(time_sleep_timers,portMAX_DELAY);   //IR接收到的定时关空调时间并启动
+            else
+                xTimerStop(time_sleep_timers,portMAX_DELAY);
+            printf("ac_time ok:%d;\r\n",ac_time);
         }
     }
 } 

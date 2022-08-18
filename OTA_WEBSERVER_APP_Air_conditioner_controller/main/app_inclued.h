@@ -87,7 +87,7 @@
 #define BLe_battery_low 1810 //2110
 #define BLe_battery_High 2320
 
-#define sse_len 7
+#define sse_len 8
 
 extern EventGroupHandle_t APP_event_group;
 #define APP_event_REBOOT_BIT BIT0   // =1 重起

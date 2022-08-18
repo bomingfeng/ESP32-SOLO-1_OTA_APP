@@ -1117,7 +1117,7 @@ ir_ps_data[12] = 0xca;
             Voltage_ble = BLe_battery_low;
             i = 0;
         }
-        
+        #if 0
         if((i % 100) == 0)
         {
             TickType_t xRemainingTime;
@@ -1214,6 +1214,7 @@ ir_ps_data[12] = 0xca;
 			}
             tcp_client_send(ds18b20C);*/
         }
+        #endif
         i++;
 
 
@@ -1290,5 +1291,6 @@ ir_ps_data[12] = 0xca;
             sse_data[4] &= ~BIT3;
         }
         sse_data[6] = IR_temp;
+        sse_data[7] = (xTimerGetExpiryTime(time_sleep_timers) - xTaskGetTickCount()) / (60000 / portTICK_PERIOD_MS);
     }
 }

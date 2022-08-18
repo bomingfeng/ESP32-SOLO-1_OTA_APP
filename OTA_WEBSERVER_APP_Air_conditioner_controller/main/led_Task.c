@@ -173,7 +173,7 @@ void led_instructions(void *pvParam)
             vTaskDelay(3500 / portTICK_PERIOD_MS);
         }                                        
         
-
+        /*
         con++;
         if(con >= 100)
         {
@@ -184,6 +184,6 @@ void led_instructions(void *pvParam)
             tcp_client_send(ip_addr4);
             vTaskList((char *)&pcWriteBuffer);
             printf("%s\r\n", pcWriteBuffer); 
-        }
+        }*/
     }
 }
