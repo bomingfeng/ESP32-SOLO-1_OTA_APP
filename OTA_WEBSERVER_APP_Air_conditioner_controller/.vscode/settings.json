@@ -3,7 +3,7 @@
   "idf.adapterTargetName": "esp32",
   "idf.openOcdConfigs": [
     "interface/ftdi/esp32_devkitj_v1.cfg",
-    "target/esp32.cfg"
+    "target/esp32-solo-1.cfg"
   ],
   "idf.portWin": "COM3",
   "idf.flashType": "UART",
@@ -46,6 +46,9 @@
     "complex": "c",
     "thread": "c",
     "array": "c",
-    "string": "c"
+    "string": "c",
+    "htmltomcu.h": "c",
+    "ble_client.h": "c",
+    "limits": "c"
   }
 }

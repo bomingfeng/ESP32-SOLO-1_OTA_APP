@@ -452,17 +452,17 @@ void IRps_task(void *arg)
                         break;
                     case 0x19:IR_temp = 2760;//27
                         break;
-                    case 0x05:IR_temp = 2800;//28
+                    case 0x05:IR_temp = 2780;//28
                         break;
-                    case 0x15:IR_temp = 2900;//29
+                    case 0x15:IR_temp = 2780;//29
                         break;
-                    case 0x0d:IR_temp = 3000;//30
+                    case 0x0d:IR_temp = 2780;//30
                         break;
-                    case 0x1d:IR_temp = 3100;
+                    case 0x1d:IR_temp = 2780;
                         break;
-                    case 0x03:IR_temp = 3200; 
+                    case 0x03:IR_temp = 2780; 
                         break;
-                    default:  IR_temp = 2760;
+                    default:  IR_temp = 2780;
                         break;
                 }
                 if((ir_ps_data[11] & 0x08) == 0x08)
@@ -683,71 +683,40 @@ void tempps_task(void *arg)
                     EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x05;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x00;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0xaa;//BIT3显示置位
-                    ir_ps_data[12] = 0x1a;
-                    28降温 开（开机状态）1风速
-                */
+                        
+
                         ir_ps_data[0] = 0xc3;
-ir_ps_data[1] = 0x09;
-ir_ps_data[2] = 0x00;
-ir_ps_data[3] = 0x00;
-ir_ps_data[4] = 0x05;
-ir_ps_data[5] = 0x00;
-ir_ps_data[6] = 0x04;
-ir_ps_data[7] = 0x00;
-ir_ps_data[8] = 0x00;
-ir_ps_data[9] = 0x04;
-ir_ps_data[10] = 0x00;
-ir_ps_data[11] = 0xa8;
-ir_ps_data[12] = 0x12;
+                        ir_ps_data[1] = 0x19;
+                        ir_ps_data[2] = 0x00;
+                        ir_ps_data[3] = 0x00;
+                        ir_ps_data[4] = 0x06;
+                        ir_ps_data[5] = 0x01;
+                        ir_ps_data[6] = 0x04;
+                        ir_ps_data[7] = 0x00;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x04;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0xaa;//BIT3显示置位
+                        ir_ps_data[12] = 0x0b;
+                        /*皇龙湾主卧奥克斯空调。27制冷 开（开机状态）静音，左右上下都摆风。*/
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
-                /*
-                    ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x05;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x06;
-                    ir_ps_data[5] = 0x00;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0x82;  //BIT3显示不置位
-                    ir_ps_data[12] = 0x22;
-                    28降温 开（开机状态）1风速
-                */
                         ir_ps_data[0] = 0xc3;
-                    ir_ps_data[1] = 0x09;
-                    ir_ps_data[2] = 0x00;
-                    ir_ps_data[3] = 0x00;
-                    ir_ps_data[4] = 0x05;
-                    ir_ps_data[5] = 0x00;
-                    ir_ps_data[6] = 0x04;
-                    ir_ps_data[7] = 0x00;
-                    ir_ps_data[8] = 0x00;
-                    ir_ps_data[9] = 0x04;
-                    ir_ps_data[10] = 0x00;
-                    ir_ps_data[11] = 0x80;
-                    ir_ps_data[12] = 0x2c;
-
-
-
+                        ir_ps_data[1] = 0x19;
+                        ir_ps_data[2] = 0x00;
+                        ir_ps_data[3] = 0x00;
+                        ir_ps_data[4] = 0x06;
+                        ir_ps_data[5] = 0x01;
+                        ir_ps_data[6] = 0x04;
+                        ir_ps_data[7] = 0x00;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x04;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x82;//BIT3显示不置位
+                        ir_ps_data[12] = 0x3d;
+                        /*皇龙湾主卧奥克斯空调。27制冷 开（开机状态）静音，左右上下都摆风。*/
                     }
 #endif 
                     xEventGroupSetBits(APP_event_group,APP_event_SP_flags_BIT);
@@ -779,38 +748,38 @@ ir_ps_data[12] = 0x12;
                     EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
-                ir_ps_data[0] = 0xc3;
-ir_ps_data[1] = 0x15;
-ir_ps_data[2] = 0x00;
-ir_ps_data[3] = 0x00;
-ir_ps_data[4] = 0x05;
-ir_ps_data[5] = 0x00;
-ir_ps_data[6] = 0x04;
-ir_ps_data[7] = 0x00;
-ir_ps_data[8] = 0x00;
-ir_ps_data[9] = 0x04;
-ir_ps_data[10] = 0x00;
-ir_ps_data[11] = 0xa8;
-ir_ps_data[12] = 0x06;
+                        ir_ps_data[0] = 0xc3;
+                        ir_ps_data[1] = 0x15;
+                        ir_ps_data[2] = 0x00;
+                        ir_ps_data[3] = 0x00;
+                        ir_ps_data[4] = 0x06;
+                        ir_ps_data[5] = 0x01;
+                        ir_ps_data[6] = 0x04;
+                        ir_ps_data[7] = 0x00;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x04;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0xaa;//BIT3显示置位
+                        ir_ps_data[12] = 0x07;
+                        /*皇龙湾主卧奥克斯空调。29制冷 开（开机状态）静音，左右上下都摆风。*/
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
-                ir_ps_data[0] = 0xc3;
-ir_ps_data[1] = 0x15;
-ir_ps_data[2] = 0x00;
-ir_ps_data[3] = 0x00;
-ir_ps_data[4] = 0x05;
-ir_ps_data[5] = 0x00;
-ir_ps_data[6] = 0x04;
-ir_ps_data[7] = 0x00;
-ir_ps_data[8] = 0x00;
-ir_ps_data[9] = 0x04;
-ir_ps_data[10] = 0x00;
-ir_ps_data[11] = 0x80;
-ir_ps_data[12] = 0x32;
-
-
+                        ir_ps_data[0] = 0xc3;
+                        ir_ps_data[1] = 0x15;
+                        ir_ps_data[2] = 0x00;
+                        ir_ps_data[3] = 0x00;
+                        ir_ps_data[4] = 0x06;
+                        ir_ps_data[5] = 0x01;
+                        ir_ps_data[6] = 0x04;
+                        ir_ps_data[7] = 0x00;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x04;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x02;//BIT3显示不置位
+                        ir_ps_data[12] = 0xd3;
+                        /*皇龙湾主卧奥克斯空调。29制冷 开（开机状态）静音，左右上下都摆风。*/
                     }
 #endif 
                     xEventGroupSetBits(APP_event_group,APP_event_LP_flags_BIT);
@@ -842,37 +811,38 @@ ir_ps_data[12] = 0x32;
                     EventBits_t uxBits = xEventGroupGetBits(APP_event_group);
                     if((uxBits & APP_event_lighting_BIT) != 0)
                     {
-                ir_ps_data[0] = 0xc3;
-ir_ps_data[1] = 0x0d;
-ir_ps_data[2] = 0x00;
-ir_ps_data[3] = 0x00;
-ir_ps_data[4] = 0x05;
-ir_ps_data[5] = 0x00;
-ir_ps_data[6] = 0x04;
-ir_ps_data[7] = 0x00;
-ir_ps_data[8] = 0x00;
-ir_ps_data[9] = 0x04;
-ir_ps_data[10] = 0x00;
-ir_ps_data[11] = 0xa8;
-ir_ps_data[12] = 0x16;
+                        ir_ps_data[0] = 0xc3;
+                        ir_ps_data[1] = 0x0d;
+                        ir_ps_data[2] = 0x00;
+                        ir_ps_data[3] = 0x00;
+                        ir_ps_data[4] = 0x06;
+                        ir_ps_data[5] = 0x01;
+                        ir_ps_data[6] = 0x04;
+                        ir_ps_data[7] = 0x00;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x04;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0xaa;//BIT3显示置位
+                        ir_ps_data[12] = 0x17;
+                         /*皇龙湾主卧奥克斯空调。30制冷 开（开机状态）静音，左右上下都摆风。*/
                         xEventGroupClearBits(APP_event_group,APP_event_lighting_BIT);
                     }
                     else
                     {
-                ir_ps_data[0] = 0xc3;
-ir_ps_data[1] = 0x0d;
-ir_ps_data[2] = 0x00;
-ir_ps_data[3] = 0x00;
-ir_ps_data[4] = 0x05;
-ir_ps_data[5] = 0x00;
-ir_ps_data[6] = 0x04;
-ir_ps_data[7] = 0x00;
-ir_ps_data[8] = 0x00;
-ir_ps_data[9] = 0x04;
-ir_ps_data[10] = 0x00;
-ir_ps_data[11] = 0x00;
-ir_ps_data[12] = 0xca;                      
-
+                        ir_ps_data[0] = 0xc3;
+                        ir_ps_data[1] = 0x0d;
+                        ir_ps_data[2] = 0x00;
+                        ir_ps_data[3] = 0x00;
+                        ir_ps_data[4] = 0x06;
+                        ir_ps_data[5] = 0x01;
+                        ir_ps_data[6] = 0x04;
+                        ir_ps_data[7] = 0x00;
+                        ir_ps_data[8] = 0x00;
+                        ir_ps_data[9] = 0x04;
+                        ir_ps_data[10] = 0x00;
+                        ir_ps_data[11] = 0x02;//BIT3显示不置位
+                        ir_ps_data[12] = 0xcb;
+                         /*皇龙湾主卧奥克斯空调。30制冷 开（开机状态）静音，左右上下都摆风。*/
                     }
 #endif 
                     xEventGroupSetBits(APP_event_group,APP_event_LLP_flags_BIT);

@@ -11,6 +11,7 @@
 #include "sntp_task.h"
 #include "LED_Seg7Menu/LED_Seg7Menu.h"
 #include "ADC1_single_read_Task.h"
+#include "htmltomcu.h"
 
 EventGroupHandle_t APP_event_group;
 
@@ -196,7 +197,11 @@ void app_main()
     tempps_task_init();
     xTaskCreate(IRps_task,"IRps_task",  3072, NULL, ESP_TASK_PRIO_MIN + 2,NULL);
     xTaskCreate(tempps_task,"tempps",  3072, NULL, ESP_TASK_PRIO_MIN + 1,NULL);
-    xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+
+    //xTaskCreate(test_test, "test_test", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    
+    xTaskCreate(htmltomcudata_task, "htmltomcudata", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);
+    
     xTaskCreate(LED_Seg7Menu_Task, "LED_Seg7Menu", 4096, NULL, ESP_TASK_PRIO_MIN + 1, NULL);//????
     
 /*   释放BT mode模式，释放内存   */

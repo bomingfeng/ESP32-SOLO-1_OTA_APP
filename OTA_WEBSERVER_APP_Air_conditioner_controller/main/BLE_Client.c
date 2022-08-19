@@ -144,10 +144,6 @@ static struct gattc_profile_inst gl_profile_tab[PROFILE_NUM] = {
     },
 };
 
-if(xTimerIsTimerActive(Read_ble_xTimer) == pdFALSE)
-                                {
-                                    xTimerReset(Read_ble_xTimer,portMAX_DELAY); 
-                                }
 
 uint8_t ble_batty_low = 0;
 static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param)

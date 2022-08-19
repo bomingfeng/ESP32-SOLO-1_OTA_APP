@@ -245,7 +245,7 @@ ENABLE_ZLIB_SUPPORT:BOOL=OFF
 ESP_PLATFORM:UNINITIALIZED=1
 
 //Git command line client
-GIT_EXECUTABLE:FILEPATH=C:/ESP/.espressif/tools/idf-git/2.30.1/cmd/git.exe
+GIT_EXECUTABLE:FILEPATH=C:/Program Files/Git/cmd/git.exe
 
 //IDF Build Target
 IDF_TARGET:STRING=esp32
@@ -318,12 +318,6 @@ __idf_bootloader_support_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_newl
 
 //Dependencies for the target
 __idf_bt_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_newlib;general;__idf_freertos;general;__idf_esp_hw_support;general;__idf_heap;general;__idf_log;general;__idf_lwip;general;__idf_soc;general;__idf_hal;general;__idf_esp_rom;general;__idf_esp_common;general;__idf_esp_system;general;btdm_app;
-
-//Dependencies for the target
-__idf_bus_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_newlib;general;__idf_freertos;general;__idf_esp_hw_support;general;__idf_heap;general;__idf_log;general;__idf_lwip;general;__idf_soc;general;__idf_hal;general;__idf_esp_rom;general;__idf_esp_common;general;__idf_esp_system;
-
-//Dependencies for the target
-__idf_button_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_newlib;general;__idf_freertos;general;__idf_esp_hw_support;general;__idf_heap;general;__idf_log;general;__idf_lwip;general;__idf_soc;general;__idf_hal;general;__idf_esp_rom;general;__idf_esp_common;general;__idf_esp_system;
 
 //Dependencies for the target
 __idf_cmock_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_newlib;general;__idf_freertos;general;__idf_esp_hw_support;general;__idf_heap;general;__idf_log;general;__idf_lwip;general;__idf_soc;general;__idf_hal;general;__idf_esp_rom;general;__idf_esp_common;general;__idf_esp_system;
@@ -701,7 +695,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=114
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=112
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -743,7 +737,7 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Git
-FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[C:/ESP/.espressif/tools/idf-git/2.30.1/cmd/git.exe][v2.30.1.windows.1()]
+FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[C:/Program Files/Git/cmd/git.exe][v2.34.1.windows.1()]
 //Details about finding Perl
 FIND_PACKAGE_MESSAGE_DETAILS_Perl:INTERNAL=[C:/Telink/tc32_win/bin/perl.exe][v5.22.2()]
 //Details about finding PythonInterp

@@ -14,7 +14,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1' />
 
     <!-- 每30秒刷新页面： -->
-    <!-- <meta http-equiv="refresh" content="120"> -->
+    <meta http-equiv="refresh" content="300">
 
     <!-- <script> 标签用于定义客户端脚本，比如 JavaScript。
          <script> 元素既可包含脚本语句，也可以通过 "src" 属性指向外部脚本文件 -->
@@ -32,10 +32,14 @@
     <h4 id="data_time"></h4>
 
     <label id="AC_timer"></label>
-    <label for="AC_time">空调定时关时</label>
+    <label for="AC_time">空调定时关机</label>
     <input type="number" name="AC_time" id="AC_time" required>
     <label for="AC_time">min</label>
-    <input type="button" id="AC_time_config" value="定时关时">
+    <input type="button" id="AC_time_config" value="定时关机">
+
+    <input type="time" name="AC_hhmm" id="AC_hhmm" required>
+    <input type="button" id="AC_hhmm_config" value="关机时间">
+
     <br>
     <label id="ADC"></label>
     <label for="adc_number">ADC亮度值</label>
@@ -94,6 +98,7 @@
         var Voltage_ble;
         var IR_temp;
         var ac_data;
+        var ac_hhmm;
 
         var es = new EventSource("/McuToHtml");
 
@@ -135,6 +140,9 @@
             }
             else if(e.lastEventId == 7){
                 ac_data = e.data;
+            }
+            else if(e.lastEventId == 8){
+                ac_hhmm = e.data;
             }
             else{
                 date1 = e.data;
@@ -187,7 +195,7 @@
                 document.getElementById("data_time").innerHTML += "<span style='background:green;'>2级(LLP)升温中</span>";
             }
             document.getElementById("ADC").innerHTML = "ADC亮度值:" + adc_data + "&emsp;&emsp;";
-            document.getElementById("AC_timer").innerHTML = "空调定时关时:" + ac_data + "&nbsp;min&emsp;&emsp;";
+            document.getElementById("AC_timer").innerHTML = "空调定时关机:" + ac_data + "&nbsp;min&emsp;关空调时间：" + ac_hhmm + "&emsp;";
             
         },false);
 
@@ -380,6 +388,19 @@
                     HtmlToMcu("ac_time:" + AC_time.value);
                     ac_data = AC_time.value;
                     console.log("ac_time:" + AC_time.value);
+                    ac_hhmm = '';
+                    AC_hhmm.value = '';
+                } 
+            });
+
+            $("#AC_hhmm_config").click(function() {
+                if(AC_hhmm.value != '')
+                {
+                    HtmlToMcu("ac_hhmm:" + AC_hhmm.value);
+                    ac_hhmm = AC_hhmm.value;
+                    console.log("ac_hhmm:" + AC_hhmm.value);
+                    AC_time.value = '';
+                    ac_data = '';
                 } 
             });
         });

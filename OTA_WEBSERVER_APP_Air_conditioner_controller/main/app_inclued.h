@@ -45,8 +45,8 @@
 #include "bt_hci_common.h"
 
 
-#define Gree    
-//#define Auxgroup 
+//#define Gree    
+#define Auxgroup 
 
 #ifdef  Gree
 #include "ir_parser_rmt_YAPOF3.h"
@@ -68,8 +68,8 @@
 #define IR_PARSER_CONFIG(dev) IR_PARSER_YKR_T_091_CONFIG(dev)
 #endif
 
-//#define LYWSD03MMC    
-#define XL0801
+#define LYWSD03MMC    
+//#define XL0801
 
 #define GATTC_TAG "LYWSD03MMC"
 #define Sp 18 //温度上、下限
@@ -87,7 +87,7 @@
 #define BLe_battery_low 1810 //2110
 #define BLe_battery_High 2320
 
-#define sse_len 8
+#define sse_len 9
 
 extern EventGroupHandle_t APP_event_group;
 #define APP_event_REBOOT_BIT BIT0   // =1 重起
