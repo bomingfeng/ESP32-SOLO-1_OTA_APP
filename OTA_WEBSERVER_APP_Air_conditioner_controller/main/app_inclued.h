@@ -79,7 +79,7 @@
 #ifdef XL0801
 #define load_time 1 //多久控制空调
 #else
-#define load_time 45//多久控制空调
+#define load_time 1//多久控制空调
 #endif
 
 #define sleep_time 5  //休眠时间min

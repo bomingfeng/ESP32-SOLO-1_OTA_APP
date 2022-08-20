@@ -564,7 +564,7 @@ void Read_ble_xTimerCallback(TimerHandle_t xTimer)
 void ble_init(void * arg)
 {
     esp_err_t ret;
-    xEventGroupClearBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
+    xEventGroupSetBits(APP_event_group,APP_event_BLE_CONNECTED_flags_BIT);
     Read_ble_xTimer = xTimerCreate("Timer0",(60000 / portTICK_PERIOD_MS)/*min*/ * 5,pdFALSE,( void * ) 0,Read_ble_xTimerCallback);//1min
 
 /*  整体结构上，蓝牙可分为控制器(Controller)和主机(Host)两大部分；  

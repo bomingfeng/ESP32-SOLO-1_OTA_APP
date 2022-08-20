@@ -2,6 +2,7 @@
 
 extern TimerHandle_t time_sleep_timers;
 extern MessageBufferHandle_t HtmlToMcuData;
+MessageBufferHandle_t adc_config;
 
 void htmltomcudata_task(void * arg)
 {
@@ -12,7 +13,7 @@ void htmltomcudata_task(void * arg)
     char password[64];
     size_t len;
 
-    uint32_t adc_data,ac_time = 0;
+    uint32_t adc_data  = 168,ac_time = 0;
     int hour = 0,min = 0;
     time_t now;
     struct tm timeinfo;
@@ -62,13 +63,29 @@ void htmltomcudata_task(void * arg)
                 //printf("Error (%s) reading!\n", esp_err_to_name(err));
                 break;
         }
+
+        // Read
+        printf("Reading restart counter from NVS ... ");
+        err = nvs_get_u32(my_handle, "adc_config", &adc_data);
+        switch (err) {
+            case ESP_OK:
+                printf("Done\n");
+                printf("Restart counter = %d\n", adc_data);
+                break;
+            case ESP_ERR_NVS_NOT_FOUND:
+                printf("The value is not initialized yet!\n");
+                break;
+            default :
+                printf("Error (%s) reading!\n", esp_err_to_name(err));
+        }
+
         // Close
         nvs_close(my_handle);
     }
 
     while(1)
     {
-        data_len = xMessageBufferReceive(HtmlToMcuData,&data,80,(60000 / portTICK_PERIOD_MS)/*min*/ * 1);
+        data_len = xMessageBufferReceive(HtmlToMcuData,&data,96,(60000 / portTICK_PERIOD_MS)/*min*/ * 1);
         
         printf("data_len:%d;data:%s;\r\n",data_len,data);
         /*
@@ -173,6 +190,35 @@ void htmltomcudata_task(void * arg)
                 }
             }
             printf("adc_data ok:%d;\r\n",adc_data);
+            // Open
+                printf("\n");
+                printf("Opening Non-Volatile Storage (NVS) handle... ");
+                err = nvs_open("storage", NVS_READWRITE, &my_handle);
+                if (err != ESP_OK) {
+                    printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+                } else {
+                    printf("Done\n");
+                }   
+
+                // Write
+                printf("Updating restart counter in NVS ... ");
+                
+               
+                err=nvs_set_u32(my_handle,"adc_config",adc_data);
+                printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+
+                
+
+                // Commit written value.
+                // After setting any values, nvs_commit() must be called to ensure changes are written
+                // to flash storage. Implementations may write to storage at other times,
+                // but this is not guaranteed.
+                printf("Committing updates in NVS ... ");
+                err = nvs_commit(my_handle);
+                printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+
+                // Close
+                nvs_close(my_handle);
         }
         else if(data_ok == 4){
             first_len = data_len - (first_bit + 8);
@@ -209,7 +255,7 @@ void htmltomcudata_task(void * arg)
                 min = 10 * min + (data[first_bit + 4 + 8] - '0');
             }
             en_ac_off = 0xaa;
-            if((ac_time > 0) && ((xEventGroupGetBits(APP_event_group) & APP_event_run_BIT) == APP_event_run_BIT)){
+            if((xEventGroupGetBits(APP_event_group) & APP_event_run_BIT) == APP_event_run_BIT){
                 xTimerStop(time_sleep_timers,portMAX_DELAY);
                 xTimerChangePeriod(time_sleep_timers, (60000 / portTICK_PERIOD_MS)/*min*/ * time_off *2,portMAX_DELAY);
                 xTimerReset(time_sleep_timers,portMAX_DELAY);   //IR接收到的定时关空调时间并启动
@@ -228,5 +274,6 @@ void htmltomcudata_task(void * arg)
             }
         }
         memset(data,'\0',sizeof(data));
+        xMessageBufferSend(adc_config,&adc_data,4,portMAX_DELAY);
     }
 }

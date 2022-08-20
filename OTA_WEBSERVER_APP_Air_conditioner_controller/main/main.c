@@ -41,6 +41,7 @@ extern MessageBufferHandle_t IRPS_temp;
 extern MessageBufferHandle_t time_hour_min;
 extern MessageBufferHandle_t HtmlToMcuData;
 extern TimerHandle_t time_sleep_timers;
+extern MessageBufferHandle_t adc_config;
 
 extern int32_t BLe_battery;
 extern nvs_handle_t BLe_battery_handle;
@@ -57,7 +58,7 @@ void test_test(void * arg)
     //vTaskDelete(NULL);
     while(1)
     {
-        data_len = xMessageBufferReceive(HtmlToMcuData,&data,80,portMAX_DELAY);
+        data_len = xMessageBufferReceive(HtmlToMcuData,&data,96,portMAX_DELAY);
         
         printf("data_len:%d;data:%s;\r\n",data_len,data);
         /*
@@ -170,8 +171,8 @@ void app_main()
     ir_rx_data  = xMessageBufferCreate(17);
     ir_tx_data =  xMessageBufferCreate(17);
     IRPS_temp = xMessageBufferCreate(8);
-    HtmlToMcuData  = xMessageBufferCreate(100);
-
+    HtmlToMcuData = xMessageBufferCreate(100);
+    adc_config = xMessageBufferCreate(8);
     //printf("Init GPIO & nvs_flash.....\r\n");
     app_init();
 

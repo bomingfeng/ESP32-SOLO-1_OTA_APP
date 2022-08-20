@@ -1230,7 +1230,7 @@ ir_ps_data[12] = 0xca;
         {
             segDisBuff[0] = SEG7_CODE_NULL;
         }
-        if((BLe_battery <= BLe_battery_low) || ((uxBits & APP_event_BLE_CONNECTED_flags_BIT) != APP_event_BLE_CONNECTED_flags_BIT))
+        if((Voltage_ble <= BLe_battery_low) || (((uxBits & APP_event_BLE_CONNECTED_flags_BIT) != APP_event_BLE_CONNECTED_flags_BIT) && ((uxBits & (APP_event_run_BIT | APP_event_30min_timer_BIT)) == (APP_event_run_BIT | APP_event_30min_timer_BIT))))
         {
             segDisBuff[0] |= SEG7_CODE_DP;
         }

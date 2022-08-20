@@ -23,18 +23,21 @@
 
 extern TimerHandle_t Seg7Timers;
 extern uint32_t sse_data[sse_len];
+extern MessageBufferHandle_t adc_config;
 
 void ADC1_single_read_Task(void *pvParam)
 {
     int adc1_data;
+    uint32_t adc_config1 = 168;
     //ADC1 config
     ESP_ERROR_CHECK(adc1_config_width(ADC_WIDTH_BIT_DEFAULT));
     ESP_ERROR_CHECK(adc1_config_channel_atten(ADC1_EXAMPLE_CHAN0, ADC_EXAMPLE_ATTEN));
  
     while (1) {
+        xMessageBufferReceive(adc_config,&adc_config1,4,(1000 / portTICK_PERIOD_MS)/*min*/ * 10);
         adc1_data = adc1_get_raw(ADC1_EXAMPLE_CHAN0);
         sse_data[2] = adc1_data;
-        if(adc1_data >= 168)
+        if(adc1_data >= adc_config1)
         {
             xTimerReset(Seg7Timers,portMAX_DELAY);
         }
@@ -44,6 +47,6 @@ void ADC1_single_read_Task(void *pvParam)
             SegDyn_Hidden();
         }
         //printf("adc1_data:%d.\r\n",adc1_data);
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        //vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
